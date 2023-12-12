@@ -1,17 +1,18 @@
-import mongoose, { Schema } from "mongoose";
+import { Schema, model } from "mongoose";
 
-interface MensagemTemplate  {
-    text: string;
-    model: string;
+export interface MensagemTemplate {
+  _id: string;
+  text: string
+  model: string
 }
 
 const mensagemTemplateSchema = new Schema<MensagemTemplate>(
-    {
-        text: { type: String, required: true },
-        model: { type: String, required: true },
-    }
+  {
+    text: { type: String, required: true },
+    model: { type: String, required: true },
+  }
 );
 
-const MensagemTemplateModel = mongoose.model<MensagemTemplate>("mensagemTemplates", mensagemTemplateSchema);
+const MensagemTemplate = model<MensagemTemplate>("MensagemTemplates", mensagemTemplateSchema);
 
-export default MensagemTemplateModel;
+export default MensagemTemplate;

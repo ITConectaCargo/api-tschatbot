@@ -4,7 +4,7 @@ import { Query, MysqlError } from 'mysql';
 export default class PortalColeta {
   private static dbSql = sql;
 
-  public async consultaDadosByChaveNfe(chaveNfe: string): Promise<any> {
+  public async consultaPorChaveNfe(chaveNfe: string): Promise<any> {
     const query: string = `SELECT
           mkt.nomeMkt,
           origem.cpfCnpj,
@@ -39,13 +39,13 @@ export default class PortalColeta {
           origem.chaveNfe = "${chaveNfe}"
       LIMIT 1`;
 
-    const results = await PortalColeta.executaQuery(query, [chaveNfe]);
+    const results = await this.executaQuery(query, [chaveNfe]);
     return results
   }
 
-  public async consultaByCpfCnpj(cpfCnpj: string): Promise<any> {
+  public async consultaPorCpfCnpj(cpfCnpj: string): Promise<any> {
     cpfCnpj = cpfCnpj.replace(/[^\d]+/g, '');
-    const query = `
+    const query: string = `
             SELECT DISTINCT
 	            tbl_coleta.cpfCnpj,
                 clientes.nomeCliente,
@@ -77,11 +77,54 @@ export default class PortalColeta {
             WHERE
                 clientes.cpfCnpj = ${cpfCnpj}`;
 
-    const resultado = await PortalColeta.executaQuery(query, [cpfCnpj])
+    const resultado = await this.executaQuery(query, [cpfCnpj])
     return resultado
   }
 
-  private static async executaQuery(query: string, params: any[], timeout: number = 600000): Promise<any[]> {
+  public async consultaPorTelefone(telefone: string): Promise<any> {
+    telefone = telefone.slice(2); // Remove o prefixo (por exemplo, '55')
+    const query: string = `
+            SELECT DISTINCT
+                tbl_coleta.cpfCnpj,
+                clientes.nomeCliente,
+                tbl_coleta_origem.enderecoOrigem,
+                tbl_coleta_origem.numero,
+                tbl_coleta_origem.bairroOrigem,
+                tbl_coleta_origem.cidadeOrigem,
+                tbl_coleta_origem.uf,
+                tbl_coleta_origem.cepOrigem,
+                tbl_coleta.valorTotalNf,
+                tbl_coleta.chaveNfe,
+                tbl_coleta_produto.descricaoProduto,
+                marketplace.cnpjCpf,
+                marketplace.uf as ufEmbarcador,
+                marketplace.cidade as cidadeEmbarcador,
+                marketplace.nomeMkt
+            FROM
+                tbl_coleta
+            INNER JOIN
+                clientes ON tbl_coleta.cpfCnpj = clientes.cpfCnpj
+            INNER JOIN
+                marketplace ON tbl_coleta.cnpjCpf = marketplace.cnpjCpf
+            INNER JOIN
+                mktclientesnfe ON tbl_coleta.chaveNfe = mktclientesnfe.chaveNFe
+            INNER JOIN
+                tbl_coleta_produto ON mktclientesnfe.codProduto = tbl_coleta_produto.codProduto
+            INNER JOIN
+                tbl_coleta_origem ON tbl_coleta.chaveNfe = tbl_coleta_origem.chaveNfe
+            left JOIN
+                tbl_contatos ON tbl_coleta.cpfCnpj = tbl_contatos.cpfCnpjs
+            WHERE
+                clientes.foneCliente = ${telefone}
+                OR tbl_contatos.telefone = ${telefone}
+                OR tbl_contatos.telefone2 = ${telefone}
+            `;
+
+    const resultado = await this.executaQuery(query, [telefone])
+    return resultado
+  }
+
+  private async executaQuery(query: string, params: any[], timeout: number = 600000): Promise<any[]> {
     return new Promise<any[]>((resolve, reject) => {
       const timeoutId = setTimeout(() => {
         reject({ message: 'Tempo limite excedido ao executar a consulta.' });

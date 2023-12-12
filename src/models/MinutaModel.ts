@@ -1,6 +1,7 @@
-import mongoose, { Schema, Document } from "mongoose";
+import { Schema, Document, model } from "mongoose";
 
-interface Minuta extends Document {
+export interface Minuta extends Document {
+  _id: string;
   minuta: string;
   dataAgendamento?: Date;
   agendado?: boolean;
@@ -20,6 +21,6 @@ const minutaSchema = new Schema<Minuta>(
   }
 );
 
-const MinutaModel = mongoose.model<Minuta>("minutas", minutaSchema);
+const MinutaModel = model<Minuta>("minutas", minutaSchema);
 
 export default MinutaModel;
