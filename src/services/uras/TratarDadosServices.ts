@@ -36,6 +36,9 @@ export default class TratarDadosService {
 
     let dadosSql = await portalColeta.consultaPorTelefone(mensagem.telefone)
 
+    if(!dadosSql) {
+
+    }
 
 
   }
