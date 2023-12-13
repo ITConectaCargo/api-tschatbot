@@ -1,9 +1,10 @@
 import ProtocoloModel, { Protocolo } from "@models/ProtocoloModel";
 import moment from "moment";
+import { Types } from "mongoose";
 
-export default class AtualizaProtocoloService {
+export default class AtualizarProtocoloService {
   public async executar(
-    _id: string,
+    _id: Types.ObjectId,
     status: string,
     estagioBot: string,
 
@@ -11,16 +12,14 @@ export default class AtualizaProtocoloService {
     const protocolo = await ProtocoloModel.findByIdAndUpdate(
       _id,
       {
-        $set: {
-          status,
-          estagioBot,
-          atualizadoEm: moment(),
-        },
+        status,
+        estagioBot,
+        atualizadoEm: moment(),
       },
       { new: true }
     )
 
-    if(protocolo) return protocolo
+    if (protocolo) return protocolo
     return null
   }
 }

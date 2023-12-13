@@ -14,7 +14,7 @@ interface Endereco {
 }
 
 interface ContatoParams {
-  _id?: string;
+  _id: string;
   nome?: string;
   telefone?: string;
   telefone2?: string;
@@ -26,7 +26,7 @@ interface ContatoParams {
 }
 
 export default class AtualizarContatoService {
-  public async executar({
+  public async porId({
     _id,
     nome,
     telefone,
@@ -36,24 +36,26 @@ export default class AtualizarContatoService {
     endereco,
     admin,
     estaAtivo,
-  }: ContatoParams): Promise<Contato | null> {
+  }: ContatoParams): Promise<Contato> {
     const contatoAtualizado = await ContatoModel.findByIdAndUpdate(
       _id,
       {
-        $set: {
-          nome,
-          telefone,
-          telefone2,
-          telefone3,
-          cpfCnpj,
-          endereco,
-          admin,
-          estaAtivo,
-          atualizadoEm: moment()
-        },
+        nome,
+        telefone,
+        telefone2,
+        telefone3,
+        cpfCnpj,
+        endereco,
+        admin,
+        estaAtivo,
+        atualizadoEm: moment()
       },
       { new: true } // Retorna o documento atualizado
     );
+
+    if(!contatoAtualizado) {
+      throw new AppError('Contato não localizado');
+    }
 
     return contatoAtualizado;
   }

@@ -19,7 +19,7 @@ interface De {
 }
 
 export interface Protocolo extends Document {
-  _id: string
+  _id: Types.ObjectId
   protocolo: string
   de: De
   para: string

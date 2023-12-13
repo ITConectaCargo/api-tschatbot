@@ -1,28 +1,30 @@
 import { Document, Schema, Types, model } from "mongoose";
 
 export interface Mensagem extends Document {
-  _id: string;
-  protocolo?: string;
+  _id: Types.ObjectId;
+  protocolo: string;
   remetente: Types.ObjectId;
-  usuario?: Types.ObjectId;
-  destinatario?: string;
+  destinatario: string;
+  texto: string;
   idMensagem?: string;
-  status?: string;
-  idTelefone?: string;
-  timestamp?: string;
-  tipo?: string;
+  status: string;
+  idTelefone: string;
+  timestamp: string;
+  tipo: string;
   modelo?: string;
   parametros?: Record<string, unknown>;
   meta?: Record<string, unknown>;
-  texto: string;
+  usuario?: Types.ObjectId;
+  criadoEm: Date
+  atualizadoEm?: Date
 }
 
 const mensagemSchema = new Schema<Mensagem>(
   {
     protocolo: { type: String },
     remetente: { type: Schema.Types.ObjectId, ref: 'contatos', required: true },
-    usuario: { type: Schema.Types.ObjectId, ref: 'usuarios' },
     destinatario: { type: String },
+    texto: { type: String, required: true },
     idMensagem: { type: String },
     status: { type: String },
     idTelefone: { type: String },
@@ -31,7 +33,9 @@ const mensagemSchema = new Schema<Mensagem>(
     modelo: { type: String },
     parametros: { type: Object },
     meta: { type: Object },
-    texto: { type: String, required: true },
+    usuario: { type: Schema.Types.ObjectId, ref: 'usuarios' },
+    criadoEm: { type: Date, default: Date.now },
+    atualizadoEm: { type: Date }
   }
 );
 

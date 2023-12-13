@@ -3,9 +3,20 @@ import PortalColeta from "@utils/PortalColeta";
 import moment from "moment";
 import path from "path";
 
+interface Minuta {
+  numero: string
+  chaveNfe: string
+}
+
+interface DadosFinais {
+  localBot: string
+  localVerificar: string
+  minutas: Minuta[]
+}
+
 export default class CriarArquivoPreRotaService {
-  public async arquivoBot(excel: any[][], dataAgendamento: moment.Moment): Promise<object> {
-    const minutas: string[] = []
+  public async arquivoBot(excel: any[][], dataAgendamento: moment.Moment): Promise<DadosFinais> {
+    const minutas: Minuta[] = [];
     const celulares: string[][] = [];
     const verificar: string[][] = [];
 
@@ -13,7 +24,6 @@ export default class CriarArquivoPreRotaService {
 
     const possuiDDIRegex = /^55/
     const celularRegex = /^55\d{11}$/; // Padrão para números de telefone celular no Brasil
-    const fixoRegex = /^55\d{10}$/; // Padrão para números de telefone fixo no Brasil
     const empresarialRegex = /^0800/; //verifica se é 0800
     const invalido = /1111111/
 
@@ -22,8 +32,8 @@ export default class CriarArquivoPreRotaService {
       const ocorrencia: string = linha[32]
       const embarcador: string = linha[16]
       const minuta: string = linha[2]
-      minutas.push(minuta)
       const chaveNfe: string = linha[38]
+      minutas.push({numero: minuta, chaveNfe})
       const nome: string = linha[11];
       if (!nome) continue
 
@@ -31,7 +41,7 @@ export default class CriarArquivoPreRotaService {
       if (chaveNfe.length > 42) nf = chaveNfe.slice(25, 34);
       const cnpjEmbarcador: string = chaveNfe.slice(6, 14)
 
-      const dadosPortal = await portalColeta.consultaDadosByChaveNfe(chaveNfe)
+      const dadosPortal = await portalColeta.consultaPorChaveNfe(chaveNfe)
       const cpfCnpj: string = dadosPortal[0]?.cpfCnpj
       const rua: string = dadosPortal[0]?.enderecoOrigem
       const numero: string = dadosPortal[0]?.numero
@@ -117,8 +127,8 @@ export default class CriarArquivoPreRotaService {
         for (let i = 0; i < todosTelefones.length; i++) {
           const telefone = todosTelefones[i];
           if (telefone && !telefonesAdicionados.includes(telefone)) {
-            const padraoBlip: string[] = [telefone, nome, embarcador, moment(dataAgendamento).format('DD/MM/yyyy'), minuta, nf, endereco, ocorrencia]
-            const padraoBot: string[] = [minuta, chaveNfe, nome, telefone, cpfCnpj, embarcador, rua, numero, bairro, cidade, estado, cep, complemento, moment(dataAgendamento).format('DD/mm/yyyy'), ocorrencia]
+            const padraoBlip: string[] = [telefone, nome, embarcador, dataAgendamento.format('DD/MM/yyyy'), minuta, nf, endereco, ocorrencia]
+            const padraoBot: string[] = [minuta, chaveNfe, nome, telefone, cpfCnpj, embarcador, rua, numero, bairro, cidade, estado, cep, complemento, dataAgendamento.format('DD/MM/yyyy'), ocorrencia]
             telefonesAdicionados.push(telefone);
 
             const processarTelefone = async (tel: string, dados: string[], padraoBlip: string[]) => {
@@ -138,7 +148,7 @@ export default class CriarArquivoPreRotaService {
         }
 
         if (telefonesAdicionados.length == 0) {
-          const padraoBot = [minuta, chaveNfe, nome, "Não Encontrado", cpfCnpj, embarcador, rua, numero, bairro, cidade, estado, cep, complemento, moment(dataAgendamento).format('DD/mm/yyyy'), ocorrencia]
+          const padraoBot = [minuta, chaveNfe, nome, "Não Encontrado", cpfCnpj, embarcador, rua, numero, bairro, cidade, estado, cep, complemento, dataAgendamento.format('DD/MM/yyyy'), ocorrencia]
           verificar.push(padraoBot)
         }
       }
@@ -164,8 +174,8 @@ export default class CriarArquivoPreRotaService {
     ]
 
 
-    const nomeArquivoCel = `Celulares-${moment(dataAgendamento).format('DD-MM-yyyy')}`
-    const nomeArquivoVerificar = `Verificar-${moment(dataAgendamento).format('DD-MM-yyyy')}`
+    const nomeArquivoCel = `Celulares-${dataAgendamento.format('DD-MM-yyyy')}`
+    const nomeArquivoVerificar = `Verificar-${dataAgendamento.format('DD-MM-yyyy')}`
 
     const pastaRelatorios = path.join(process.cwd(), 'arquivos', 'excel');
 
@@ -178,10 +188,12 @@ export default class CriarArquivoPreRotaService {
     console.log('Celulares para Bot')
     console.log(celulares.length)
 
-    return {
+    const dadosFinais: DadosFinais = {
       localBot,
       localVerificar,
       minutas
     }
+
+    return dadosFinais
   }
 }

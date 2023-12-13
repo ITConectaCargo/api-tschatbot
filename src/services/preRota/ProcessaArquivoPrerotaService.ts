@@ -1,10 +1,10 @@
 import ConsultaContatoService from "@services/contatos/ConsultaContatoService";
-import CriarContatoService from "@services/contatos/AtualizarContatoService";
-import Excel from "@utils/Excel";
+import CriarContatoService from "@services/contatos/CriarContatoService";
 import AtualizarContatoService from "@services/contatos/AtualizarContatoService";
+import TratarDadosService from "@services/uras/TratarDadosServices";
+import Excel from "@utils/Excel";
 import moment from "moment";
 import dotenv from 'dotenv'
-import TratarDadosService from "@services/uras/TratarDadosServices";
 dotenv.config()
 
 const phoneId = process.env.PHONEID
@@ -39,7 +39,6 @@ export default class ProcessaArquivoPrerotaService {
       let destinatario = await consultaContato.porCpfCnpj(contato.cpfCnpj)
 
       if (!destinatario) {
-        console.log("não encontrou contato no MongoDb");
         destinatario = await criarContato.executar({
           nome: contato.nome,
           telefone: contato.telefone,
@@ -57,18 +56,16 @@ export default class ProcessaArquivoPrerotaService {
           if (!destinatario.telefone2) {
             console.log("atualizando telefone2");
             destinatario.telefone2 = contato.telefone
-            destinatario = await atualizarContato.executar(destinatario)
-
+            destinatario = await atualizarContato.porId(destinatario)
           } else if (!destinatario.telefone3) {
             console.log("atualizando telefone3");
             destinatario.telefone3 = contato.telefone
-            destinatario = await atualizarContato.executar(destinatario)
-
+            destinatario = await atualizarContato.porId(destinatario)
           } else {
             console.log("criando novo contato");
             destinatario.estaAtivo = false
-            await atualizarContato.executar(destinatario)
-            destinatario = await atualizarContato.executar({
+            await atualizarContato.porId(destinatario)
+            destinatario = await criarContato.executar({
               nome: contato.nome,
               telefone: contato.telefone,
               cpfCnpj: contato.cpfCnpj,

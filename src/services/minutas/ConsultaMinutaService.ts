@@ -3,20 +3,21 @@ import moment from "moment";
 
 export default class ConsultaMinutaService {
   public async porMinutaHoje(numeroMinuta: string): Promise<Minuta | null> {
-    const hoje = moment();
-
-    const inicioDoDia = hoje.startOf('day');
-    const finalDoDia = hoje.endOf('day');
+    const hoje = moment().startOf('day');
 
     const minuta = await MinutaModel.findOne({
-      dataMinuta: {
-        $gte: inicioDoDia.toDate(),
-        $lte: finalDoDia.toDate(),
-      },
-    })
+      minuta: numeroMinuta,
+    }).sort({ criadoEm: -1 });
 
-    return minuta;
+    if (minuta) {
+      const dataCriacao = moment(minuta.criadoEm).startOf('day');
+      if (hoje.isSame(dataCriacao)) {
+        return minuta;
+      }
+    }
+    return null
   }
+
 
   public async porId(id: string): Promise<Minuta | null> {
     const minuta = await MinutaModel.findById(id);

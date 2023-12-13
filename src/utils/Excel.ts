@@ -22,7 +22,7 @@ export default class Excel {
     dados: any[][],
     url: string,
     nomeArquivo: string
-  ): Promise<string | void> {
+  ): Promise<string> {
 
     const newWorkbook = xlsx.utils.book_new();
 
@@ -34,7 +34,6 @@ export default class Excel {
     const localArquivo = join(url, `${nomeArquivo}.xlsx`);
     xlsx.writeFile(newWorkbook, localArquivo);
 
-    console.log(localArquivo);
     return localArquivo;
   };
 }

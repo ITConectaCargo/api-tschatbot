@@ -1,4 +1,4 @@
-import { Document, Schema, model } from "mongoose";
+import { Document, Schema, Types, model } from "mongoose";
 
 interface Endereco {
   rua?: string;
@@ -12,7 +12,7 @@ interface Endereco {
 }
 
 export interface Contato extends Document {
-  _id: string;
+  _id: Types.ObjectId;
   nome: string;
   telefone: string;
   telefone2?: string;

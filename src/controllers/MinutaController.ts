@@ -5,6 +5,7 @@ import CriarArquivoPreRota from '@services/preRota/CriarArquivoPreRotaService'
 import CriarMinutaServices from "@services/minutas/CriarMinutaServices"
 import moment from "moment"
 import enviarEmail from "@utils/Email"
+import ProcessaArquivoPrerotaService from "@services/preRota/ProcessaArquivoPrerotaService"
 
 class MinutaController {
   public async rotinaAutomatica(req: Request, res: Response): Promise<void> {
@@ -25,18 +26,14 @@ class MinutaController {
     const arquivoPrerota = await excel.lerDados(`C:/Users/Conecta/Documents/GitHub/${caminho}`)
 
     res.status(200).json({ message: 'Enviando Mensagens' });
+    console.log(`Rotina automatica arquivo com data ${dataConvertida.format('DD/MM/yyyy')}`)
 
     const preRota = new CriarArquivoPreRota()
+    const dados = await preRota.arquivoBot(arquivoPrerota, dataConvertida)
 
-    const dados = await preRota.arquivoBot(arquivoPrerota, dataConvertida) as {
-      localBot: string;
-      localVerificar: string;
-      minutas: string[];
-    };
-
-    const minutas = new CriarMinutaServices();
+    const criarMinutas = new CriarMinutaServices();
     for (const minuta of dados.minutas) {
-      minutas.executar(minuta);
+      criarMinutas.executar(minuta.numero, minuta.chaveNfe);
     }
 
     const assunto: string = 'Planilha tratada Chatbot'
@@ -55,7 +52,8 @@ class MinutaController {
         }
     ]
     await enviarEmail(emails, assunto, corpoEmail, anexos)
-
+    const processaPreroa = new ProcessaArquivoPrerotaService()
+    processaPreroa.executar(dados.localBot)
   }
 }
 

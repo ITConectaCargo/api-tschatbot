@@ -1,5 +1,5 @@
 import sql from '@configs/DbSql';
-import { Query, MysqlError } from 'mysql';
+import { MysqlError } from 'mysql';
 
 export default class PortalColeta {
   private static dbSql = sql;
@@ -113,7 +113,7 @@ export default class PortalColeta {
             INNER JOIN
                 tbl_coleta_origem ON tbl_coleta.chaveNfe = tbl_coleta_origem.chaveNfe
             left JOIN
-                tbl_contatos ON tbl_coleta.cpfCnpj = tbl_contatos.cpfCnpjs
+                tbl_contatos ON tbl_coleta.cpfCnpj = tbl_contatos.cpfCnpj
             WHERE
                 clientes.foneCliente = ${telefone}
                 OR tbl_contatos.telefone = ${telefone}
