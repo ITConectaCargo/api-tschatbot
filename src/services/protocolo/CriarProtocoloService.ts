@@ -5,26 +5,28 @@ import AppError from "@utils/AppError"
 import { Types } from "mongoose"
 
 interface ProtocoloParams {
-  destinatarioId: Types.ObjectId
+  remetenteId: Types.ObjectId
+  remetenteNumero: string
   destinatarioNumero: string
   origem: string
   numeroMinuta?: string
-  sensivel?: string
+  sensivel?: boolean
 }
 
 export default class CriarProtocoloService {
   public async executar({
-    destinatarioId,
+    remetenteId,
+    remetenteNumero,
     destinatarioNumero,
     origem,
     numeroMinuta = '',
-    sensivel = ''
+    sensivel = false
   }: ProtocoloParams): Promise<Protocolo> {
     const consultaContato = new ConsultaContatoService()
     const consultaMinuta = new ConsultaMinutaService()
 
-    const protocolo = await this.gerarNumeroProtocolo(destinatarioNumero)
-    const contato = await consultaContato.porId(destinatarioId)
+    const protocolo = await this.gerarNumeroProtocolo(remetenteNumero)
+    const contato = await consultaContato.porId(remetenteId)
     const minuta = await consultaMinuta.porMinutaHoje(numeroMinuta)
 
     if (!contato) {
@@ -37,8 +39,8 @@ export default class CriarProtocoloService {
         de: {
           _id: contato._id,
           nome: contato.nome,
-          telefone: contato.telefone,
-          cpfCnpj: contato.cpfCnpj,
+          telefone: remetenteNumero,
+          cpfCnpj: contato.cpfCnpj || '',
           endereco: {
             rua: contato.endereco?.rua || '',
             numero: contato.endereco?.numero || '',
@@ -51,9 +53,9 @@ export default class CriarProtocoloService {
         },
         para: destinatarioNumero,
         status: 'ura',
-        estagioBot: '0',
+        estagioBot: 'inicio',
         origem: origem,
-        minuta: minuta?._id || '',
+        minuta: minuta?._id || null,
         sensivel: sensivel,
       }
     )

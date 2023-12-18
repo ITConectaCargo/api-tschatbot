@@ -1,13 +1,13 @@
 import { Document, Schema, Types, model } from "mongoose";
 
 interface Endereco {
-  street: string,
-  district: string,
-  number: string,
-  city: string,
-  state: string,
+  rua: string,
+  numero: string,
+  bairro: string,
+  cidade: string,
+  estado: string,
   cep: string,
-  complement: string
+  complementi: string
 }
 
 interface De {
@@ -40,13 +40,13 @@ const protocoloSchema = new Schema<Protocolo>({
     telefone: { type: String },
     cpfCnpj: { type: String },
     endereco: {
-      street: { type: String },
-      district: { type: String },
-      number: { type: String },
-      city: { type: String },
-      state: { type: String },
+      rua: { type: String },
+      numero: { type: String },
+      bairro: { type: String },
+      cidade: { type: String },
+      estado: { type: String },
       cep: { type: String },
-      complement: { type: String }
+      complemento: { type: String }
     }
   },
   para: { type: String },

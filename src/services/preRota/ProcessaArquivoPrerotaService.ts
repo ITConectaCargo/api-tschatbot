@@ -1,7 +1,7 @@
 import ConsultaContatoService from "@services/contatos/ConsultaContatoService";
 import CriarContatoService from "@services/contatos/CriarContatoService";
 import AtualizarContatoService from "@services/contatos/AtualizarContatoService";
-import TratarDadosService from "@services/uras/TratarDadosServices";
+import TratarDadosService from "@services/uras/TratarDadosService";
 import Excel from "@utils/Excel";
 import moment from "moment";
 import dotenv from 'dotenv'
@@ -15,8 +15,8 @@ export default class ProcessaArquivoPrerotaService {
     const criarContato = new CriarContatoService()
     const consultaContato = new ConsultaContatoService()
     const tratarDadosAtivo = new TratarDadosService()
-    const dadosExcel = await excel.lerDados(localExcel)
 
+    const dadosExcel = await excel.lerDados(localExcel)
     const remetente = await consultaContato.contatoAdm()
 
     for (let i = 1; i < dadosExcel.length; i++) {
@@ -44,7 +44,6 @@ export default class ProcessaArquivoPrerotaService {
           telefone: contato.telefone,
           cpfCnpj: contato.cpfCnpj,
           endereco: contato.endereco,
-          estaAtivo: true,
         })
 
       } else {
@@ -70,7 +69,6 @@ export default class ProcessaArquivoPrerotaService {
               telefone: contato.telefone,
               cpfCnpj: contato.cpfCnpj,
               endereco: contato.endereco,
-              estaAtivo: true,
             })
           }
         }
@@ -93,7 +91,7 @@ export default class ProcessaArquivoPrerotaService {
 
         await new Promise(resolve => setTimeout(resolve, 1000));
         console.log(contato.nome)
-        tratarDadosAtivo.ativo(mensagem, destinatario)
+        await tratarDadosAtivo.ativo(mensagem, destinatario)
       }
     }
   }

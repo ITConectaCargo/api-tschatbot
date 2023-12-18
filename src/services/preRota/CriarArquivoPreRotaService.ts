@@ -33,7 +33,7 @@ export default class CriarArquivoPreRotaService {
       const embarcador: string = linha[16]
       const minuta: string = linha[2]
       const chaveNfe: string = linha[38]
-      minutas.push({numero: minuta, chaveNfe})
+      minutas.push({ numero: minuta, chaveNfe })
       const nome: string = linha[11];
       if (!nome) continue
 
@@ -42,31 +42,34 @@ export default class CriarArquivoPreRotaService {
       const cnpjEmbarcador: string = chaveNfe.slice(6, 14)
 
       const dadosPortal = await portalColeta.consultaPorChaveNfe(chaveNfe)
-      const cpfCnpj: string = dadosPortal[0]?.cpfCnpj
-      const rua: string = dadosPortal[0]?.enderecoOrigem
+      const cpfCnpj: string = dadosPortal[0]?.cpf_cnpj_cliente
+      const rua: string = dadosPortal[0]?.logradouro
       const numero: string = dadosPortal[0]?.numero
-      const bairro: string = dadosPortal[0]?.bairroOrigem
-      const cidade: string = dadosPortal[0]?.cidadeOrigem
+      const bairro: string = dadosPortal[0]?.bairro
+      const cidade: string = dadosPortal[0]?.cidade
       const estado: string = dadosPortal[0]?.uf
-      const cep: string = dadosPortal[0]?.cepOrigem
+      const cep: string = dadosPortal[0]?.cep
       const complemento: string = dadosPortal[0]?.complemento || ' '
       const endereco: string = `${rua} ${numero ? numero : ''} ${bairro} ${cidade} ${estado} ${cep}`
-      let tel1: string = dadosPortal[0]?.telefone
-      let tel2: string = dadosPortal[0]?.telefone2
-      let tel3: string = dadosPortal[0]?.telefone3
-      let tel4: string = dadosPortal[0]?.telefone4
-      let infoAdicional: string = dadosPortal[0]?.Infos_Adicionais
+      let infoAdicional: string = dadosPortal[0]?.info_adicional
 
-      const todosTelefones: string[] = [tel1, tel2, tel3]
+      const todosTelefones: string[] = []
 
-      const trataOcorrencia444 = async (telefone4: string) => {
-        const regex = /\/\/\s*(\d+)\s*/g;
-        let match;
-
-        while ((match = regex.exec(telefone4)) !== null) {
-          todosTelefones.push(match[1]);
-        }
+      for (const portal of dadosPortal) {
+        const tel1: string = portal.telefone_cliente
+        if (tel1) todosTelefones.push(tel1)
+        const tel2: string = portal.telefone2_cliente
+        if (tel2) todosTelefones.push(tel2)
       }
+
+      // const trataOcorrencia444 = async (telefone4: string) => {
+      //   const regex = /\/\/\s*(\d+)\s*/g;
+      //   let match;
+
+      //   while ((match = regex.exec(telefone4)) !== null) {
+      //     todosTelefones.push(match[1]);
+      //   }
+      // }
 
       const trataDadosAdicionais = async (infoAdicional: string) => {
         const telefoneRegex = /TELEF.CLIENTE:\s*([^]+?)RECADOS/gm
@@ -109,10 +112,6 @@ export default class CriarArquivoPreRotaService {
         return tel;
       }
 
-      if (tel4) {
-        await trataOcorrencia444(tel4)
-      }
-
       if (infoAdicional) {
         await trataDadosAdicionais(infoAdicional)
       }
@@ -127,29 +126,23 @@ export default class CriarArquivoPreRotaService {
         for (let i = 0; i < todosTelefones.length; i++) {
           const telefone = todosTelefones[i];
           if (telefone && !telefonesAdicionados.includes(telefone)) {
-            const padraoBlip: string[] = [telefone, nome, embarcador, dataAgendamento.format('DD/MM/yyyy'), minuta, nf, endereco, ocorrencia]
             const padraoBot: string[] = [minuta, chaveNfe, nome, telefone, cpfCnpj, embarcador, rua, numero, bairro, cidade, estado, cep, complemento, dataAgendamento.format('DD/MM/yyyy'), ocorrencia]
             telefonesAdicionados.push(telefone);
 
-            const processarTelefone = async (tel: string, dados: string[], padraoBlip: string[]) => {
-              // Verificar se o número de telefone corresponde ao padrão de celular
-              if (invalido.test(tel)) {
-                verificar.push(dados)
-              } else if (celularRegex.test(tel)) {
-                dados.push("Convencional")
-                celulares.push(dados);
-              } else {
-                verificar.push(dados)
-              }
+            if (invalido.test(telefone)) {
+              verificar.push(padraoBot)
+            } else if (celularRegex.test(telefone)) {
+              padraoBot.push("Convencional")
+              celulares.push(padraoBot);
+            } else {
+              verificar.push(padraoBot)
             }
-
-            await processarTelefone(telefone, padraoBot, padraoBlip)
           }
-        }
 
-        if (telefonesAdicionados.length == 0) {
-          const padraoBot = [minuta, chaveNfe, nome, "Não Encontrado", cpfCnpj, embarcador, rua, numero, bairro, cidade, estado, cep, complemento, dataAgendamento.format('DD/MM/yyyy'), ocorrencia]
-          verificar.push(padraoBot)
+          if (telefonesAdicionados.length == 0) {
+            const padraoBot = [minuta, chaveNfe, nome, "Não Encontrado", cpfCnpj, embarcador, rua, numero, bairro, cidade, estado, cep, complemento, dataAgendamento.format('DD/MM/yyyy'), ocorrencia]
+            verificar.push(padraoBot)
+          }
         }
       }
     }
@@ -197,3 +190,4 @@ export default class CriarArquivoPreRotaService {
     return dadosFinais
   }
 }
+

@@ -6,38 +6,36 @@ export default class PortalColeta {
 
   public async consultaPorChaveNfe(chaveNfe: string): Promise<any> {
     const query: string = `SELECT
-          mkt.nomeMkt,
-          origem.cpfCnpj,
-          origem.telefoneOrigem AS telefone,
-          GROUP_CONCAT(contA.telefone ORDER BY contA.telefone ASC SEPARATOR ' | ') AS telefone2,
-          GROUP_CONCAT(contA.telefone2 ORDER BY contA.telefone2 ASC SEPARATOR ' | ') AS telefone3,
-          pv_ocorr.Telefones AS telefone4,
-          origem.enderecoOrigem,
-          origem.numero,
-          origem.bairroOrigem,
-          origem.cidadeOrigem,
-          origem.uf,
-          origem.cepOrigem,
-          clientes.complemento,
-          info.infoAdicional,
-          pv_ocorr.Infos_Adicionais
-      FROM
-          tbl_coleta_origem AS origem
-      JOIN
-          clientes AS cli ON origem.cpfCnpj = cli.cpfCnpj
-      LEFT JOIN
-          tbl_contatos AS contA ON contA.cpfCnpj = origem.cpfCnpj
-      LEFT JOIN
-          marketplace AS mkt ON mkt.cnpjCpf = origem.cnpjCpf
-      LEFT JOIN
-          ccdblog.python_viavarejo_ocorrencias AS pv_ocorr ON pv_ocorr.Filename LIKE CONCAT('%', origem.chaveNfe, '%')
-      LEFT JOIN
-          tbl_info_adicional AS info ON info.chaveNf = origem.chaveNfe
-      LEFT JOIN
-          clientes ON clientes.cpfCnpj = origem.cpfCnpj AND clientes.logradouro = origem.enderecoOrigem
-      WHERE
-          origem.chaveNfe = "${chaveNfe}"
-      LIMIT 1`;
+    entidade_embarcador.nome AS nome_embarcador,
+    coletas.info_adicional,
+    entidade_cliente.nome AS nome_cliente,
+    entidade_cliente.documento AS cpf_cnpj_cliente,
+    contatos_cliente.telefone AS telefone_cliente,
+    contatos_cliente.telefone2 AS telefone2_cliente,
+    contatos_cliente.email AS email_cliente,
+    origem.cep,
+    cidades_origem.nome as cidade,
+    bairros_origem.nome as bairro,
+    ufs_origem.sigla as uf,
+    origem.logradouro,
+    origem.numero,
+    origem.complemento
+    FROM coletas
+    JOIN clientes ON coletas.cliente_id = clientes.id
+    JOIN entidades as entidade_cliente ON clientes.entidade_id = entidade_cliente.id
+    JOIN contatos as contatos_cliente ON entidade_cliente.documento = contatos_cliente.cpf_cnpj
+    JOIN enderecos as origem ON coletas.end_origem_id = origem.id
+    JOIN bairros as bairros_origem ON origem.bairro_id = bairros_origem.id
+    JOIN cidades as cidades_origem ON bairros_origem.cidade_id = cidades_origem.id
+    JOIN ufs as ufs_origem ON cidades_origem.uf_id = ufs_origem.id
+    JOIN embarcadores ON coletas.embarcador_id = embarcadores.id
+    JOIN entidades as entidade_embarcador ON embarcadores.entidade_id = entidade_embarcador.id
+    JOIN contatos as contatos_embarcador ON entidade_embarcador.documento = contatos_embarcador.cpf_cnpj
+    JOIN enderecos as destino ON coletas.end_destino_id = destino.id
+    JOIN bairros as bairros_destino ON destino.bairro_id = bairros_destino.id
+    JOIN cidades as cidades_destino ON bairros_destino.cidade_id = cidades_destino.id
+    JOIN ufs as ufs_destino ON cidades_destino.uf_id = ufs_destino.id
+    WHERE coletas.chave_nf = '${chaveNfe}'`;
 
     const results = await this.executaQuery(query, [chaveNfe]);
     return results
@@ -46,36 +44,41 @@ export default class PortalColeta {
   public async consultaPorCpfCnpj(cpfCnpj: string): Promise<any> {
     cpfCnpj = cpfCnpj.replace(/[^\d]+/g, '');
     const query: string = `
-            SELECT DISTINCT
-	            tbl_coleta.cpfCnpj,
-                clientes.nomeCliente,
-                tbl_coleta_origem.enderecoOrigem,
-                tbl_coleta_origem.numero,
-                tbl_coleta_origem.bairroOrigem,
-                tbl_coleta_origem.cidadeOrigem,
-                tbl_coleta_origem.uf,
-                tbl_coleta_origem.cepOrigem,
-                tbl_coleta.valorTotalNf,
-                tbl_coleta.chaveNfe,
-                tbl_coleta_produto.descricaoProduto,
-                marketplace.cnpjCpf,
-                marketplace.uf as ufEmbarcador,
-                marketplace.cidade as cidadeEmbarcador,
-                marketplace.nomeMkt
-            FROM
-                tbl_coleta
-            INNER JOIN
-                clientes ON tbl_coleta.cpfCnpj = clientes.cpfCnpj
-            INNER JOIN
-                marketplace ON tbl_coleta.cnpjCpf = marketplace.cnpjCpf
-            INNER JOIN
-                mktclientesnfe ON tbl_coleta.chaveNfe = mktclientesnfe.chaveNFe
-            INNER JOIN
-                tbl_coleta_produto ON mktclientesnfe.codProduto = tbl_coleta_produto.codProduto
-            INNER JOIN
-                tbl_coleta_origem ON tbl_coleta.chaveNfe = tbl_coleta_origem.chaveNfe
-            WHERE
-                clientes.cpfCnpj = ${cpfCnpj}`;
+    SELECT
+    entidade_cliente.documento AS cpf_cnpj_cliente,
+    entidade_cliente.nome AS nome_cliente,
+    origem.cep,
+    cidades_origem.nome as cidade,
+    bairros_origem.nome as bairro,
+    ufs_origem.sigla as uf,
+    origem.logradouro,
+    origem.numero,
+    origem.complemento,
+    coletas.valor_nf,
+    coletas.chave_nf,
+    produtos.descricao_produto,
+    entidade_embarcador.documento AS cnpj_cpf_embarcador,
+    entidade_embarcador.nome AS nome_embarcador,
+    ufs_destino.sigla,
+    cidades_destino.nome
+    FROM coletas
+    JOIN clientes ON coletas.cliente_id = clientes.id
+    JOIN entidades as entidade_cliente ON clientes.entidade_id = entidade_cliente.id
+    JOIN enderecos as origem ON coletas.end_origem_id = origem.id
+    JOIN bairros as bairros_origem ON origem.bairro_id = bairros_origem.id
+    JOIN cidades as cidades_origem ON bairros_origem.cidade_id = cidades_origem.id
+    JOIN ufs as ufs_origem ON cidades_origem.uf_id = ufs_origem.id
+    JOIN embarcadores ON coletas.embarcador_id = embarcadores.id
+    JOIN entidades as entidade_embarcador ON embarcadores.entidade_id = entidade_embarcador.id
+    JOIN enderecos as destino ON coletas.end_destino_id = destino.id
+    JOIN bairros as bairros_destino ON destino.bairro_id = bairros_destino.id
+    JOIN cidades as cidades_destino ON bairros_destino.cidade_id = cidades_destino.id
+    JOIN ufs as ufs_destino ON cidades_destino.uf_id = ufs_destino.id
+    JOIN coleta_produtos ON coleta_produtos.nf_id = coletas.id
+    JOIN produtos ON produtos.cod_produto = coleta_produtos.cod_produto
+    WHERE entidade_cliente.documento = ${cpfCnpj}
+    ORDER BY coletas.created_at DESC
+    LIMIT 1`
 
     const resultado = await this.executaQuery(query, [cpfCnpj])
     return resultado
@@ -84,41 +87,41 @@ export default class PortalColeta {
   public async consultaPorTelefone(telefone: string): Promise<any> {
     telefone = telefone.slice(2); // Remove o prefixo (por exemplo, '55')
     const query: string = `
-            SELECT DISTINCT
-                tbl_coleta.cpfCnpj,
-                clientes.nomeCliente,
-                tbl_coleta_origem.enderecoOrigem,
-                tbl_coleta_origem.numero,
-                tbl_coleta_origem.bairroOrigem,
-                tbl_coleta_origem.cidadeOrigem,
-                tbl_coleta_origem.uf,
-                tbl_coleta_origem.cepOrigem,
-                tbl_coleta.valorTotalNf,
-                tbl_coleta.chaveNfe,
-                tbl_coleta_produto.descricaoProduto,
-                marketplace.cnpjCpf,
-                marketplace.uf as ufEmbarcador,
-                marketplace.cidade as cidadeEmbarcador,
-                marketplace.nomeMkt
-            FROM
-                tbl_coleta
-            INNER JOIN
-                clientes ON tbl_coleta.cpfCnpj = clientes.cpfCnpj
-            INNER JOIN
-                marketplace ON tbl_coleta.cnpjCpf = marketplace.cnpjCpf
-            INNER JOIN
-                mktclientesnfe ON tbl_coleta.chaveNfe = mktclientesnfe.chaveNFe
-            INNER JOIN
-                tbl_coleta_produto ON mktclientesnfe.codProduto = tbl_coleta_produto.codProduto
-            INNER JOIN
-                tbl_coleta_origem ON tbl_coleta.chaveNfe = tbl_coleta_origem.chaveNfe
-            left JOIN
-                tbl_contatos ON tbl_coleta.cpfCnpj = tbl_contatos.cpfCnpj
-            WHERE
-                clientes.foneCliente = ${telefone}
-                OR tbl_contatos.telefone = ${telefone}
-                OR tbl_contatos.telefone2 = ${telefone}
-            `;
+    SELECT
+    entidade_cliente.documento AS cpf_cnpj_cliente,
+    entidade_cliente.nome AS nome_cliente,
+    origem.cep,
+    cidades_origem.nome as cidade,
+    bairros_origem.nome as bairro,
+    ufs_origem.sigla as uf,
+    origem.logradouro,
+    origem.numero,
+    origem.complemento,
+    coletas.valor_nf,
+    coletas.chave_nf,
+    produtos.descricao_produto,
+    entidade_embarcador.documento AS cnpj_cpf_embarcador,
+    entidade_embarcador.nome AS nome_embarcador,
+    ufs_destino.sigla,
+    cidades_destino.nome
+    FROM coletas
+    JOIN clientes ON coletas.cliente_id = clientes.id
+    JOIN entidades as entidade_cliente ON clientes.entidade_id = entidade_cliente.id
+    JOIN contatos as contatos_cliente ON entidade_cliente.documento = contatos_cliente.cpf_cnpj
+    JOIN enderecos as origem ON coletas.end_origem_id = origem.id
+    JOIN bairros as bairros_origem ON origem.bairro_id = bairros_origem.id
+    JOIN cidades as cidades_origem ON bairros_origem.cidade_id = cidades_origem.id
+    JOIN ufs as ufs_origem ON cidades_origem.uf_id = ufs_origem.id
+    JOIN embarcadores ON coletas.embarcador_id = embarcadores.id
+    JOIN entidades as entidade_embarcador ON embarcadores.entidade_id = entidade_embarcador.id
+    JOIN enderecos as destino ON coletas.end_destino_id = destino.id
+    JOIN bairros as bairros_destino ON destino.bairro_id = bairros_destino.id
+    JOIN cidades as cidades_destino ON bairros_destino.cidade_id = cidades_destino.id
+    JOIN ufs as ufs_destino ON cidades_destino.uf_id = ufs_destino.id
+    JOIN coleta_produtos ON coleta_produtos.nf_id = coletas.id
+    JOIN produtos ON produtos.cod_produto = coleta_produtos.cod_produto
+    WHERE contatos_cliente.telefone = ${telefone}
+    OR contatos_cliente.telefone2 = ${telefone}`;
 
     const resultado = await this.executaQuery(query, [telefone])
     return resultado

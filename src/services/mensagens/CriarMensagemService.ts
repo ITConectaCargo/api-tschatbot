@@ -1,16 +1,15 @@
 import MensagemModel, { Mensagem } from "@models/MensagemModel";
+import moment from "moment";
 import { Types } from "mongoose";
 
 interface MensagemParams {
-  protocolo: string;
+  protocolo?: string;
   remetente: Types.ObjectId;
   destinatario: string;
   tipo: string;
   texto: string;
   idMensagem?: string;
   status: string;
-  idTelefone: string;
-  timestamp: number;
   modelo?: string;
   parametros?: Record<string, unknown>;
   usuario?: Types.ObjectId;
@@ -24,8 +23,6 @@ export default class CriarMensagemService {
     texto,
     idMensagem,
     status,
-    idTelefone,
-    timestamp,
     tipo,
     modelo,
     parametros,
@@ -39,8 +36,8 @@ export default class CriarMensagemService {
       texto,
       idMensagem,
       status,
-      idTelefone,
-      timestamp,
+      idTelefone: process.env.PHONEID!,
+      timestamp: moment().unix(),
       tipo,
       modelo,
       parametros,

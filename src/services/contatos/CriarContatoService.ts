@@ -1,4 +1,5 @@
-import ContatoModel, {Contato} from "@models/ContatoModel";
+import ContatoModel, { Contato } from "@models/ContatoModel";
+import ConsultaContatoService from "./ConsultaContatoService";
 
 interface Endereco {
   rua: string;
@@ -12,15 +13,13 @@ interface Endereco {
 }
 
 interface ContatoParams {
-  _id?: string;
   nome: string;
   telefone: string;
   telefone2?: string;
   telefone3?: string;
-  cpfCnpj: string;
-  endereco: Endereco;
+  cpfCnpj?: string;
+  endereco?: Endereco;
   admin?: boolean;
-  estaAtivo: boolean;
 }
 
 export default class CriarContatoService {
@@ -32,8 +31,24 @@ export default class CriarContatoService {
     cpfCnpj,
     endereco,
     admin = false,
-    estaAtivo,
   }: ContatoParams): Promise<Contato> {
+    const constultaContato = new ConsultaContatoService()
+
+    if (telefone) {
+      const contato = await constultaContato.porTelefone(telefone)
+      if (contato) {
+        return contato
+      }
+    }
+
+    if (cpfCnpj) {
+      const contato = await constultaContato.porCpfCnpj(cpfCnpj)
+
+      if (contato) {
+        return contato
+      }
+    }
+
     const novoContato = new ContatoModel({
       nome,
       telefone,
@@ -42,7 +57,7 @@ export default class CriarContatoService {
       cpfCnpj,
       endereco,
       admin,
-      estaAtivo,
+      estaAtivo: true,
     });
 
     const contatoSalvo = await novoContato.save();

@@ -1,3 +1,4 @@
+import { Embarcador } from "@models/EmbarcadorModel";
 import MinutaModel, { Minuta } from "@models/MinutaModel";
 import AppError from "@utils/AppError";
 import moment, { Moment } from "moment";
@@ -8,7 +9,8 @@ interface MinutaParams {
   _id: Types.ObjectId,
   descricaoProduto?: string,
   dataAgendamento?: Moment,
-
+  protocolo?: string[]
+  embarcador?: Types.ObjectId | Embarcador
   agendado?: boolean,
   agendadoPor?: string
 }
@@ -18,6 +20,8 @@ export default class AtualizarMinutaService {
     _id,
     descricaoProduto,
     dataAgendamento,
+    protocolo,
+    embarcador,
     agendado,
     agendadoPor,
   }: MinutaParams): Promise<Minuta> {
@@ -26,6 +30,8 @@ export default class AtualizarMinutaService {
       {
         descricaoProduto,
         dataAgendamento,
+        protocolo,
+        embarcador,
         agendado,
         agendadoPor,
         atualizadoEm: moment()

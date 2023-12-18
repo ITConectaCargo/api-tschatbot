@@ -22,7 +22,7 @@ export interface Contato extends Document {
   admin?: boolean;
   estaAtivo?: boolean;
   criadoEm: Date;
-  atualizadoEm: Date
+  atualizadoEm?: Date
 }
 
 const contatoSchema = new Schema<Contato>({

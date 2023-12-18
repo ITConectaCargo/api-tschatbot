@@ -7,4 +7,10 @@ export default class ConsultaProtocoloService {
     if (protocolo) return protocolo
     return null
   }
+
+  public async porTelefone(telefone: string): Promise<Protocolo | null> {
+    const protocolo = await ProtocoloModel.findOne({ 'de.telefone': telefone })
+    if (protocolo) return protocolo
+    return null
+  }
 }

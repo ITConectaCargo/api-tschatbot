@@ -1,6 +1,7 @@
 import ContatoModel, { Contato } from "@models/ContatoModel";
 import AppError from "@utils/AppError";
 import moment from "moment";
+import { Types } from "mongoose";
 
 interface Endereco {
   rua?: string;
@@ -14,7 +15,7 @@ interface Endereco {
 }
 
 interface ContatoParams {
-  _id: string;
+  _id: Types.ObjectId;
   nome?: string;
   telefone?: string;
   telefone2?: string;

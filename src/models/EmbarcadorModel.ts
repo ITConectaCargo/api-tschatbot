@@ -13,6 +13,6 @@ const embarcadorSchema = new Schema<Embarcador>(
   }
 );
 
-const EmbarcadorModel = model<Embarcador>("EmbarcadorTemplates", embarcadorSchema);
+const EmbarcadorModel = model<Embarcador>("embarcadores", embarcadorSchema);
 
 export default EmbarcadorModel;
