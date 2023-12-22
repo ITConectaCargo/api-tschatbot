@@ -26,11 +26,11 @@ export default class Email {
         },
       });
 
-      // const info = await transporter.sendMail(mailOptions);
-
-      // console.log('E-mail enviado:', info.response);
+      const info = await transporter.sendMail(mailOptions);
+      console.log('E-mail enviado:', info.response);
     } catch (error) {
-      throw new AppError('Erro ao enviar e-mail', 500); // Use o status de erro apropriado
+      console.log(`Erro ao enviar Email`)
+      console.log(error)
     }
   }
 
@@ -64,7 +64,7 @@ export default class Email {
 
       await this.transmitir(mailOptions);
     } catch (error) {
-      throw new AppError('Erro ao preparar e enviar e-mail', 500); // Use o status de erro apropriado
+      console.log(error)
     }
   }
 }

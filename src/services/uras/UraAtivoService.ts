@@ -4,11 +4,12 @@ import { Minuta } from "@models/MinutaModel";
 import { Protocolo } from "@models/ProtocoloModel";
 import ConsultaContatoService from "@services/contatos/ConsultaContatoService";
 import ConsultaMensagemTemplateService from "@services/mensagemTemplate/ConsultaMensagemService";
-import ConsultaMensagemService from "@services/mensagens/ConsultaMensagemService";
 import CriarMensagemService from "@services/mensagens/CriarMensagemService";
+import TranscricaoConversaService from "@services/mensagens/TranscricaoConversaService";
 import ConsultaMinutaService from "@services/minutas/ConsultaMinutaService";
 import AtualizarProtocoloService from "@services/protocolo/AtualizarProtocoloService";
 import EnviaMensagensMetaService from "@services/whatsapp/EnviaMensagensMetaService";
+import Esl from "@utils/Esl";
 import moment from "moment";
 
 export default class UraAtivoService {
@@ -49,10 +50,6 @@ export default class UraAtivoService {
         texto: texto,
         status: 'pendent',
         modelo: 'agenda_devolucao',
-        parametros: {
-          protocolo: protocolo,
-          minuta: minuta
-        }
       })
 
       protocolo.estagioBot = 'ura-ativo-confirmando-agendamento'
@@ -61,5 +58,241 @@ export default class UraAtivoService {
       const enviaMensagensMeta = new EnviaMensagensMetaService(botMensagem)
       await enviaMensagensMeta.TemplateAgendaDevolucao(protocolo, minuta, minuta.embarcador)
     }
+
+    else if (protocolo.estagioBot === "resposta-inicio") {
+      if (ultimaMensagem.texto == "1" || ultimaMensagem.texto == "Sim") {
+        const mensagemTemplate = new ConsultaMensagemTemplateService('ura-ativo-instrucoes')
+        const template = await mensagemTemplate.buscar()
+
+        const criarMensagem = new CriarMensagemService()
+        const botMensagem = await criarMensagem.executar({
+          protocolo: protocolo.protocolo,
+          remetente: contatoBot._id,
+          destinatario: protocolo.de.telefone,
+          tipo: 'text',
+          texto: template,
+          status: 'pendent'
+        })
+
+        const enviaMensagensMeta = new EnviaMensagensMetaService(botMensagem)
+        await enviaMensagensMeta.Texto()
+
+        setTimeout(async () => {
+          console.log("ura agendamento confirmaData")
+          const comentario = `Protocolo: ${protocolo.protocolo} // Por: Bot // Via ChatBot`
+          const esl = new Esl()
+          const agendado = await esl.enviaOcorrenciaComTratativa(comentario, 300, minuta)
+
+          if (agendado) {
+            const mensagemTemplate = new ConsultaMensagemTemplateService('ura-ativo-agendado')
+            const template = await mensagemTemplate.buscar()
+            const texto = template.replace('{{1}}', moment(minuta.dataAgendamento).format('DD/MM/yyyy'))
+              .replace('{{2}}', protocolo.protocolo)
+
+            const criarMensagem = new CriarMensagemService()
+            const botMensagem = await criarMensagem.executar({
+              protocolo: protocolo.protocolo,
+              remetente: contatoBot._id,
+              destinatario: protocolo.de.telefone,
+              tipo: 'text',
+              texto: texto,
+              status: 'pendent'
+            })
+
+            protocolo.estagioBot = 'inicio'
+            protocolo.status = 'finalizado'
+            const atualizaProtocolo = new AtualizarProtocoloService()
+            await atualizaProtocolo.executar(protocolo)
+
+            const enviaMensagensMeta = new EnviaMensagensMetaService(botMensagem)
+            await enviaMensagensMeta.Texto()
+          } else {
+            const mensagemTemplate = new ConsultaMensagemTemplateService('ura-ativo-agendado-erro')
+            const template = await mensagemTemplate.buscar()
+
+            const criarMensagem = new CriarMensagemService()
+            const botMensagem = await criarMensagem.executar({
+              protocolo: protocolo.protocolo,
+              remetente: contatoBot._id,
+              destinatario: protocolo.de.telefone,
+              tipo: 'text',
+              texto: template,
+              status: 'pendent'
+            })
+
+            const enviaMensagensMeta = new EnviaMensagensMetaService(botMensagem)
+            await enviaMensagensMeta.Texto()
+
+            setTimeout(async () => {
+              const mensagemTemplate = new ConsultaMensagemTemplateService("ura-falar-com-atendente")
+              const template = await mensagemTemplate.buscar()
+
+              const criarMensagem = new CriarMensagemService()
+              const botMensagem = await criarMensagem.executar({
+                protocolo: protocolo.protocolo,
+                remetente: contatoBot._id,
+                destinatario: protocolo.de.telefone,
+                tipo: 'text',
+                texto: template,
+                status: 'pendent',
+              })
+
+              protocolo.estagioBot = 'inicio'
+              protocolo.status = 'espera'
+              const atualizaProtocolo = new AtualizarProtocoloService()
+              await atualizaProtocolo.executar(protocolo)
+
+              const enviaMensagensMeta = new EnviaMensagensMetaService(botMensagem)
+              await enviaMensagensMeta.Texto()
+            })
+
+          }
+        }, 3000)
+      }
+      else if (ultimaMensagem.texto == "2" || ultimaMensagem.texto == "Não") {
+        const mensagemTemplate = new ConsultaMensagemTemplateService('ura-ativo-nao-agendar')
+        const template = await mensagemTemplate.buscar()
+
+        const criarMensagem = new CriarMensagemService()
+        const botMensagem = await criarMensagem.executar({
+          protocolo: protocolo.protocolo,
+          remetente: contatoBot._id,
+          destinatario: protocolo.de.telefone,
+          tipo: 'list',
+          texto: template,
+          status: 'pendent'
+        })
+
+        protocolo.estagioBot = 'valida-motivo'
+        const atualizaProtocolo = new AtualizarProtocoloService()
+        await atualizaProtocolo.executar(protocolo)
+
+        const enviaMensagensMeta = new EnviaMensagensMetaService(botMensagem)
+        await enviaMensagensMeta.Lista({
+          botao: 'Motivo',
+          opcoes: ['Não estarei em casa', "Produto já devolvido", "Produto incorreto", "Ficarei com o produto"]
+        })
+      }
+      else if (ultimaMensagem.texto == "3" || ultimaMensagem.texto == "Falar com Atendente") {
+        const mensagemTemplate = new ConsultaMensagemTemplateService("ura-falar-com-atendente")
+        const template = await mensagemTemplate.buscar()
+
+        const criarMensagem = new CriarMensagemService()
+        const botMensagem = await criarMensagem.executar({
+          protocolo: protocolo.protocolo,
+          remetente: contatoBot._id,
+          destinatario: protocolo.de.telefone,
+          tipo: 'text',
+          texto: template,
+          status: 'pendent',
+        })
+
+        protocolo.estagioBot = 'inicio'
+        protocolo.status = 'espera'
+        const atualizaProtocolo = new AtualizarProtocoloService()
+        await atualizaProtocolo.executar(protocolo)
+
+        const enviaMensagensMeta = new EnviaMensagensMetaService(botMensagem)
+        await enviaMensagensMeta.Texto()
+      }
+    }
+
+    else if (protocolo.estagioBot === "valida-motivo") {
+      const esl = new Esl()
+      const comentario = `Protocolo: ${protocolo.protocolo} // Por: Bot // Via ChatBot`
+      if (ultimaMensagem.texto === '1' || ultimaMensagem.texto === 'Não estarei em casa') {
+        const mensagemTemplate = new ConsultaMensagemTemplateService('ura-ativo-movivo-nao-estei-em-casa')
+        const template = await mensagemTemplate.buscar()
+
+        const criarMensagem = new CriarMensagemService()
+        const botMensagem = await criarMensagem.executar({
+          protocolo: protocolo.protocolo,
+          remetente: contatoBot._id,
+          destinatario: protocolo.de.telefone,
+          tipo: 'text',
+          texto: template,
+          status: 'pendent'
+        })
+
+        protocolo.estagioBot = 'inicio'
+        protocolo.status = 'espera'
+        const atualizaProtocolo = new AtualizarProtocoloService()
+        await atualizaProtocolo.executar(protocolo)
+
+        const enviaMensagensMeta = new EnviaMensagensMetaService(botMensagem)
+        return await enviaMensagensMeta.Texto()
+      }
+      else if (ultimaMensagem.texto === '2' || ultimaMensagem.texto === 'Produto já devolvido') {
+        await esl.enviaOcorrenciaComTratativa(comentario, 304, minuta)
+      }
+      else if (ultimaMensagem.texto === '3' || ultimaMensagem.texto === 'Produto incorreto') {
+        await esl.enviaOcorrenciaComTratativa(comentario, 305, minuta)
+      }
+      else if (ultimaMensagem.texto === '4' || ultimaMensagem.texto === 'Ficarei com o produto') {
+        await esl.enviaOcorrenciaComTratativa(comentario, 306, minuta)
+      }
+
+      const transcricaoConversa = new TranscricaoConversaService(protocolo.protocolo)
+      const transcricao = await transcricaoConversa.porTexto()
+
+      await esl.enviaOcorrencia(transcricao, 330, minuta.chaveNfe)
+
+      const mensagemTemplate = new ConsultaMensagemTemplateService('ura-ativo-motivo-finalizado')
+      const template = await mensagemTemplate.buscar()
+
+      const criarMensagem = new CriarMensagemService()
+      const botMensagem = await criarMensagem.executar({
+        protocolo: protocolo.protocolo,
+        remetente: contatoBot._id,
+        destinatario: protocolo.de.telefone,
+        tipo: 'text',
+        texto: template,
+        status: 'pendent'
+      })
+
+      protocolo.estagioBot = 'inicio'
+      protocolo.status = 'finalizado'
+      const atualizaProtocolo = new AtualizarProtocoloService()
+      await atualizaProtocolo.executar(protocolo)
+
+      const enviaMensagensMeta = new EnviaMensagensMetaService(botMensagem)
+      await enviaMensagensMeta.Texto()
+
+    }
+
+    // else if (fila.botStage == "validaAtendimento") {
+    //   //Caso mora em validaAtendimento positivo
+    //   if (ultimaMensagem.text == "1" || ultimaMensagem.text == "Sim") {
+    //     console.log("ura agendamento validaAtendimento")
+    //     let template = await Mensagem.buscaMensagemTemplate("validaAtendimento")
+    //     const texto = template
+
+    //     //coloca mensagem no Bot
+    //     botMensagem.text = texto
+    //     botMensagem.template = ""
+    //     fila.botStage = "0"
+    //     fila.status = "espera"
+    //     Ura.preparaMensagemBot(botMensagem, fila)
+    //   }
+    //   //Caso mora em validaAtendimento negativo
+    //   else if (ultimaMensagem.text == "2" || ultimaMensagem.text == "Não") {
+    //     console.log("ura agendamento validaAtendimento negativo")
+    //     let template = await Mensagem.buscaMensagemTemplate("validaAtendimento-negativa")
+    //     let texto = template
+
+    //     botMensagem.text = texto
+    //     botMensagem.template = ""
+    //     fila.botStage = "0"
+    //     fila.status = "finalizado"
+    //     Ura.preparaMensagemBot(botMensagem, fila)
+    //   }
+    //   //caso nao aperte botao
+    //   else {
+    //     botMensagem.template = "naoApertouBotao"
+    //     fila.botStage = "agendamento andar"
+    //     fila.attempts++
+    //     return Ura.preparaMensagemBot(botMensagem, fila)
+    //   }
+    // }
   }
 }

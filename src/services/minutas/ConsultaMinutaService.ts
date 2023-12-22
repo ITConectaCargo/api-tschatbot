@@ -32,4 +32,12 @@ export default class ConsultaMinutaService {
     if (!minuta) throw new AppError('Minuta nao ncontrada')
     return minuta;
   }
+
+  public async todasHoje(): Promise<Minuta[]> {
+    const hoje = moment().startOf('day');
+
+    const minuta = await MinutaModel.find({ criadoEm: { $gte: hoje.toDate(), $lt: moment(hoje).endOf('day').toDate() } })
+
+    return minuta
+  }
 }

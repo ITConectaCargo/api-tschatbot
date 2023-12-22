@@ -56,29 +56,21 @@ export default class TratarDadosService {
       }
     }
 
-    const portalColeta = new PortalColeta()
-    let dadosSql = await portalColeta.consultaPorTelefone(mensagem.telefone)
+    if (minuta) {
+      const portalColeta = new PortalColeta()
+      const [embarcadorSql] = await portalColeta.consultaEmbarcador(minuta.chaveNfe)
 
-    if (dadosSql.length === 0 && destinatario.cpfCnpj) {
-      dadosSql = await portalColeta.consultaPorCpfCnpj(destinatario.cpfCnpj)
-    }
+      const criarEmbarcador = new CriarEmbarcadorService()
+      const embarcador = await criarEmbarcador.executar(embarcadorSql.documento, embarcadorSql.nome)
 
-    if (dadosSql.length > 0 && minuta) {
-      console.log(`Encontrado do SQL ${dadosSql.length}`)
-      for (const frete of dadosSql) {
-        if (frete.chave_nf === minuta.chaveNfe) {
-          console.log('Encontrei ChaveNfe')
-          const criarEmbarcador = new CriarEmbarcadorService()
-          const embarcador = await criarEmbarcador.executar(frete.cnpj_cpf_embarcador, frete.nome_embarcador)
+      const produtoSql = await portalColeta.consultaProduto(minuta.chaveNfe)
 
-          minuta.embarcador = embarcador._id
-          minuta.descricaoProduto = frete.descricao_produto
-          minuta.dataAgendamento = mensagem.dataAgendamento
-          const atualizarMinuta = new AtualizarMinutaService()
-          const novaMinuta = await atualizarMinuta.porId(minuta)
-          minuta = novaMinuta
-        }
-      }
+      minuta.embarcador = embarcador._id
+      minuta.descricaoProduto = produtoSql
+      minuta.dataAgendamento = mensagem.dataAgendamento
+      const atualizarMinuta = new AtualizarMinutaService()
+      const novaMinuta = await atualizarMinuta.porId(minuta)
+      minuta = novaMinuta
     }
 
     const consultaContato = new ConsultaContatoService()
@@ -105,7 +97,7 @@ export default class TratarDadosService {
         destinatario: mensagem.para,
         tipo: 'text',
         texto: mensagem.texto,
-        status: 'pendent',
+        status: 'delivered',
       })
 
       const uraAtivo = new UraAtivoService()

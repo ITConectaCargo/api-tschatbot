@@ -37,39 +37,25 @@ export default class CriarArquivoPreRotaService {
       const nome: string = linha[11];
       if (!nome) continue
 
-      let nf: string = ''
-      if (chaveNfe.length > 42) nf = chaveNfe.slice(25, 34);
-      const cnpjEmbarcador: string = chaveNfe.slice(6, 14)
-
       const dadosPortal = await portalColeta.consultaPorChaveNfe(chaveNfe)
-      const cpfCnpj: string = dadosPortal[0]?.cpf_cnpj_cliente
+      const cpfCnpj: string = dadosPortal[0]?.documento
       const rua: string = dadosPortal[0]?.logradouro
       const numero: string = dadosPortal[0]?.numero
       const bairro: string = dadosPortal[0]?.bairro
       const cidade: string = dadosPortal[0]?.cidade
-      const estado: string = dadosPortal[0]?.uf
+      const estado: string = dadosPortal[0]?.sigla
       const cep: string = dadosPortal[0]?.cep
       const complemento: string = dadosPortal[0]?.complemento || ' '
-      const endereco: string = `${rua} ${numero ? numero : ''} ${bairro} ${cidade} ${estado} ${cep}`
       let infoAdicional: string = dadosPortal[0]?.info_adicional
 
       const todosTelefones: string[] = []
 
       for (const portal of dadosPortal) {
-        const tel1: string = portal.telefone_cliente
+        const tel1: string = portal.telefone
         if (tel1) todosTelefones.push(tel1)
-        const tel2: string = portal.telefone2_cliente
+        const tel2: string = portal.telefone2
         if (tel2) todosTelefones.push(tel2)
       }
-
-      // const trataOcorrencia444 = async (telefone4: string) => {
-      //   const regex = /\/\/\s*(\d+)\s*/g;
-      //   let match;
-
-      //   while ((match = regex.exec(telefone4)) !== null) {
-      //     todosTelefones.push(match[1]);
-      //   }
-      // }
 
       const trataDadosAdicionais = async (infoAdicional: string) => {
         const telefoneRegex = /TELEF.CLIENTE:\s*([^]+?)RECADOS/gm
@@ -120,7 +106,7 @@ export default class CriarArquivoPreRotaService {
         if (todosTelefones[i]) todosTelefones[i] = limparTelefone(todosTelefones[i])
       }
 
-      if (ocorrencia === 'A agendar' || ocorrencia === 'A Reagendar') {
+      if (ocorrencia === 'A agendar' || ocorrencia === 'A Reagendar' || ocorrencia === 'Quebra do Veiculo' || ocorrencia === 'Falta de Tempo Hábil' || ocorrencia === 'Bau Cheio') {
         const telefonesAdicionados: string[] = []
 
         for (let i = 0; i < todosTelefones.length; i++) {

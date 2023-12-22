@@ -9,4 +9,10 @@ export default class ConsultaMensagemService {
     if (!mensagem) throw new AppError('Ultima Mensagem nao encontrada')
     return mensagem
   }
+
+  public async porProtocolo(protocolo: string): Promise<Mensagem[]> {
+    const mensagens = await MensagemModel.find({protocolo: protocolo}).populate('remetente').exec()
+
+    return mensagens
+  }
 }

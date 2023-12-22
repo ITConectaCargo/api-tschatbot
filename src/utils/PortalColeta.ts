@@ -6,124 +6,64 @@ export default class PortalColeta {
 
   public async consultaPorChaveNfe(chaveNfe: string): Promise<any> {
     const query: string = `SELECT
-    entidade_embarcador.nome AS nome_embarcador,
-    coletas.info_adicional,
-    entidade_cliente.nome AS nome_cliente,
-    entidade_cliente.documento AS cpf_cnpj_cliente,
-    contatos_cliente.telefone AS telefone_cliente,
-    contatos_cliente.telefone2 AS telefone2_cliente,
-    contatos_cliente.email AS email_cliente,
-    origem.cep,
-    cidades_origem.nome as cidade,
-    bairros_origem.nome as bairro,
-    ufs_origem.sigla as uf,
-    origem.logradouro,
-    origem.numero,
-    origem.complemento
-    FROM coletas
-    JOIN clientes ON coletas.cliente_id = clientes.id
-    JOIN entidades as entidade_cliente ON clientes.entidade_id = entidade_cliente.id
-    JOIN contatos as contatos_cliente ON entidade_cliente.documento = contatos_cliente.cpf_cnpj
-    JOIN enderecos as origem ON coletas.end_origem_id = origem.id
-    JOIN bairros as bairros_origem ON origem.bairro_id = bairros_origem.id
-    JOIN cidades as cidades_origem ON bairros_origem.cidade_id = cidades_origem.id
-    JOIN ufs as ufs_origem ON cidades_origem.uf_id = ufs_origem.id
-    JOIN embarcadores ON coletas.embarcador_id = embarcadores.id
-    JOIN entidades as entidade_embarcador ON embarcadores.entidade_id = entidade_embarcador.id
-    JOIN contatos as contatos_embarcador ON entidade_embarcador.documento = contatos_embarcador.cpf_cnpj
-    JOIN enderecos as destino ON coletas.end_destino_id = destino.id
-    JOIN bairros as bairros_destino ON destino.bairro_id = bairros_destino.id
-    JOIN cidades as cidades_destino ON bairros_destino.cidade_id = cidades_destino.id
-    JOIN ufs as ufs_destino ON cidades_destino.uf_id = ufs_destino.id
-    WHERE coletas.chave_nf = '${chaveNfe}'`;
+      contatos.telefone, contatos.telefone2,
+      entidades.nome AS nome_cliente, entidades.documento,
+      enderecos.logradouro, enderecos.numero, bairros.nome AS bairro, ufs.sigla, enderecos.cep, enderecos.complemento,
+      coletas.info_adicional
+      FROM coletas
+      JOIN clientes ON coletas.cliente_id = clientes.id
+      JOIN entidades ON clientes.entidade_id = entidades.id
+      JOIN contatos ON contatos.cpf_cnpj = entidades.documento
+      JOIN enderecos ON coletas.end_origem_id = enderecos.id
+      JOIN bairros ON enderecos.bairro_id = bairros.id
+      JOIN cidades ON bairros.cidade_id = cidades.id
+      JOIN ufs ON cidades.uf_id = ufs.id
+      WHERE coletas.chave_nf = '${chaveNfe}'
+    `
 
     const results = await this.executaQuery(query, [chaveNfe]);
     return results
   }
 
-  public async consultaPorCpfCnpj(cpfCnpj: string): Promise<any> {
-    cpfCnpj = cpfCnpj.replace(/[^\d]+/g, '');
+  public async consultaEmbarcador(chaveNfe: string): Promise<any> {
     const query: string = `
-    SELECT
-    entidade_cliente.documento AS cpf_cnpj_cliente,
-    entidade_cliente.nome AS nome_cliente,
-    origem.cep,
-    cidades_origem.nome as cidade,
-    bairros_origem.nome as bairro,
-    ufs_origem.sigla as uf,
-    origem.logradouro,
-    origem.numero,
-    origem.complemento,
-    coletas.valor_nf,
-    coletas.chave_nf,
-    produtos.descricao_produto,
-    entidade_embarcador.documento AS cnpj_cpf_embarcador,
-    entidade_embarcador.nome AS nome_embarcador,
-    ufs_destino.sigla,
-    cidades_destino.nome
-    FROM coletas
-    JOIN clientes ON coletas.cliente_id = clientes.id
-    JOIN entidades as entidade_cliente ON clientes.entidade_id = entidade_cliente.id
-    JOIN enderecos as origem ON coletas.end_origem_id = origem.id
-    JOIN bairros as bairros_origem ON origem.bairro_id = bairros_origem.id
-    JOIN cidades as cidades_origem ON bairros_origem.cidade_id = cidades_origem.id
-    JOIN ufs as ufs_origem ON cidades_origem.uf_id = ufs_origem.id
-    JOIN embarcadores ON coletas.embarcador_id = embarcadores.id
-    JOIN entidades as entidade_embarcador ON embarcadores.entidade_id = entidade_embarcador.id
-    JOIN enderecos as destino ON coletas.end_destino_id = destino.id
-    JOIN bairros as bairros_destino ON destino.bairro_id = bairros_destino.id
-    JOIN cidades as cidades_destino ON bairros_destino.cidade_id = cidades_destino.id
-    JOIN ufs as ufs_destino ON cidades_destino.uf_id = ufs_destino.id
-    JOIN coleta_produtos ON coleta_produtos.nf_id = coletas.id
-    JOIN produtos ON produtos.cod_produto = coleta_produtos.cod_produto
-    WHERE entidade_cliente.documento = ${cpfCnpj}
-    ORDER BY coletas.created_at DESC
-    LIMIT 1`
+      SELECT entidades.nome, entidades.documento FROM coletas
+      JOIN embarcadores ON embarcadores.id = coletas.embarcador_id
+      JOIN entidades ON entidades.id = embarcadores.entidade_id
+      WHERE coletas.chave_nf = '${chaveNfe}';
+    `
 
-    const resultado = await this.executaQuery(query, [cpfCnpj])
-    return resultado
+    const results = await this.executaQuery(query, [chaveNfe]);
+    return results
   }
 
-  public async consultaPorTelefone(telefone: string): Promise<any> {
-    telefone = telefone.slice(2); // Remove o prefixo (por exemplo, '55')
+  public async consultaProduto(chaveNfe: string): Promise<string> {
     const query: string = `
-    SELECT
-    entidade_cliente.documento AS cpf_cnpj_cliente,
-    entidade_cliente.nome AS nome_cliente,
-    origem.cep,
-    cidades_origem.nome as cidade,
-    bairros_origem.nome as bairro,
-    ufs_origem.sigla as uf,
-    origem.logradouro,
-    origem.numero,
-    origem.complemento,
-    coletas.valor_nf,
-    coletas.chave_nf,
-    produtos.descricao_produto,
-    entidade_embarcador.documento AS cnpj_cpf_embarcador,
-    entidade_embarcador.nome AS nome_embarcador,
-    ufs_destino.sigla,
-    cidades_destino.nome
+    SELECT GROUP_CONCAT(DISTINCT produtos.descricao_produto SEPARATOR ' [+] ') AS descricao_produto
     FROM coletas
-    JOIN clientes ON coletas.cliente_id = clientes.id
-    JOIN entidades as entidade_cliente ON clientes.entidade_id = entidade_cliente.id
-    JOIN contatos as contatos_cliente ON entidade_cliente.documento = contatos_cliente.cpf_cnpj
-    JOIN enderecos as origem ON coletas.end_origem_id = origem.id
-    JOIN bairros as bairros_origem ON origem.bairro_id = bairros_origem.id
-    JOIN cidades as cidades_origem ON bairros_origem.cidade_id = cidades_origem.id
-    JOIN ufs as ufs_origem ON cidades_origem.uf_id = ufs_origem.id
-    JOIN embarcadores ON coletas.embarcador_id = embarcadores.id
-    JOIN entidades as entidade_embarcador ON embarcadores.entidade_id = entidade_embarcador.id
-    JOIN enderecos as destino ON coletas.end_destino_id = destino.id
-    JOIN bairros as bairros_destino ON destino.bairro_id = bairros_destino.id
-    JOIN cidades as cidades_destino ON bairros_destino.cidade_id = cidades_destino.id
-    JOIN ufs as ufs_destino ON cidades_destino.uf_id = ufs_destino.id
-    JOIN coleta_produtos ON coleta_produtos.nf_id = coletas.id
-    JOIN produtos ON produtos.cod_produto = coleta_produtos.cod_produto
-    WHERE contatos_cliente.telefone = ${telefone}
-    OR contatos_cliente.telefone2 = ${telefone}`;
+    JOIN coleta_produtos AS produtosNf ON produtosNf.nf_id = coletas.id
+    JOIN produtos ON produtos.cod_produto = produtosNf.cod_produto
+    WHERE coletas.chave_nf = '${chaveNfe}'
+    GROUP BY produtos.cod_produto
+    `
 
-    const resultado = await this.executaQuery(query, [telefone])
+    const results = await this.executaQuery(query, [chaveNfe]);
+
+    if(results[0]) {
+      const descricao = results[0].descricao_produto
+      return descricao
+    }
+    else {
+      return "Produto não cadastrado"
+    }
+  }
+
+  public async consultaUrlChecklist(raizCnpj: string): Promise<any> {
+    const query = `
+      SELECT * FROM bot_checklist WHERE raizCnpj = ${raizCnpj}
+    `;
+
+    const resultado = await this.executaQuery(query, [raizCnpj])
     return resultado
   }
 

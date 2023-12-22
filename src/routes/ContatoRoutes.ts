@@ -6,7 +6,7 @@ const contatoRouter = Router();
 const contatoController = new ContatoController()
 
 contatoRouter.post(
-  "/criar",
+  "/",
   celebrate({
     [Segments.BODY]: {
       nome: Joi.string().required(),

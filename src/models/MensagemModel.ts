@@ -1,9 +1,10 @@
 import { Document, Schema, Types, model } from "mongoose";
+import { Contato } from "./ContatoModel";
 
 export interface Mensagem extends Document {
   _id: Types.ObjectId;
   protocolo: string;
-  remetente: Types.ObjectId;
+  remetente: Types.ObjectId | Contato;
   destinatario: string;
   texto: string;
   idMensagem?: string;

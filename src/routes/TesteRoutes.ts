@@ -5,14 +5,19 @@ import { celebrate, Joi, Segments } from "celebrate";
 const testeRouter = Router();
 const testeController = new TestesController()
 
-testeRouter.get(
-  "/teste1/:chaveNfe",
+testeRouter.post(
+  "/teste1",
   celebrate({
-    [Segments.PARAMS]: {
-      chaveNfe: Joi.string().required(),
+    [Segments.BODY]: {
+      chaveNfe: Joi.array().required()
     },
   }),
   testeController.teste1
+);
+
+testeRouter.get(
+  "/teste2",
+  testeController.teste2
 );
 
 export default testeRouter;

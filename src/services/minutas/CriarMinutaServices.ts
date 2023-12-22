@@ -2,31 +2,38 @@ import MinutaModel, { Minuta } from '@models/MinutaModel'
 import ConsultaMinutaService from './ConsultaMinutaService';
 import Esl from '@utils/Esl';
 import AppError from '@utils/AppError';
+import Checklist from '@utils/Checklist';
 
 export default class CriarMinutaServices {
-  public async executar(minutaData: string, chaveNfe: string): Promise<Minuta> {
-    const consultaMinuta = new ConsultaMinutaService()
-    const esl = new Esl()
+  public async executar(minutaData: string, chaveNfe: string): Promise<Minuta | null> {
+    try {
+      const consultaMinuta = new ConsultaMinutaService()
+      const minutaExiste = await consultaMinuta.porMinutaHoje(minutaData)
+      if (minutaExiste) return minutaExiste
 
-    const minutaExiste = await consultaMinuta.porMinutaHoje(minutaData)
+      const checklist = new Checklist()
+      const checklistDados = await checklist.consultar(chaveNfe)
 
-    if (!minutaExiste) {
+
+      const esl = new Esl()
       const dadosOcorrencia = await esl.consultarOcorrencia(chaveNfe)
       const novaMinuta = new MinutaModel({
         minuta: minutaData,
         chaveNfe: chaveNfe,
         codigoOcorrencia: dadosOcorrencia.codigoOcorrencia || '',
-        descricaoOcorrencia: dadosOcorrencia.descricaoOcorrencia || ''
+        descricaoOcorrencia: dadosOcorrencia.descricaoOcorrencia || '',
+        checklist: {
+          motivo: checklistDados.motivo,
+          detalhes: checklistDados.detalhes,
+        },
       });
       const minutaSalva = await novaMinuta.save();
 
-      if(!minutaSalva) {
-        throw new AppError("minuta nao criada", 500)
-      }
-
       return minutaSalva
-    }
 
-    return minutaExiste
+    } catch (error) {
+      console.log(error)
+      return null
+    }
   }
 }

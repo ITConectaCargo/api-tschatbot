@@ -21,6 +21,7 @@ class MinutaController {
 
       if (verificaData) {
         res.status(400).json({ message: 'Data Precisa ser maior que a data de hoje' });
+        return
       }
 
       const excel = new Excel()
