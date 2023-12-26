@@ -1,5 +1,5 @@
 import mongoose, { Connection } from "mongoose";
-import AppError from "src/utils/AppError";
+import AppError from "@utils/AppError";
 import dotenv from 'dotenv';
 dotenv.config();
 

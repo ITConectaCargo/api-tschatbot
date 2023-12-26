@@ -1,8 +1,11 @@
-FROM node:18-alpine3.18
-RUN mkdir -p /Chatbot/node_modules && chown -R node:node /Chatbot/
+FROM node:18
+
 WORKDIR /Chatbot
-COPY package*.json ./
+
+COPY . .
+
 RUN npm install
-COPY --chown=node:node . .
-EXPOSE 9000
-CMD ["node", 'server.js']
+
+RUN npm run build
+
+CMD ["npm", "start"]

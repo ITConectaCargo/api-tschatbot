@@ -6,9 +6,12 @@ services:
     working_dir: /Chatbot/
     environment:
       - NODE_ENV=production
+      - TZ=America/Sao_Paulo
     expose:
-      - "9000"
+      - "3333"
     ports:
-      - "9000:9000"
-    container_name: chatbot-api
+      - "3333:3333"
+    volumes:
+      - /home/devinectar.com.br/chatbot/conversas/:/Chatbot/arquivos
+    container_name: tschatbot-api
     restart: always

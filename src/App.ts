@@ -4,7 +4,7 @@ import { errors } from 'celebrate';
 import cors from 'cors'
 import routes from "./routes/Routes"
 import AppError from '@utils/AppError';
-import db from "./configs/DbMongo"
+import db from "@configs/DbMongo"
 import dotenv from 'dotenv'
 dotenv.config()
 
