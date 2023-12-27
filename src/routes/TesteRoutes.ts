@@ -1,6 +1,7 @@
 import express, { Router } from "express";
 import TestesController from "@controllers/TestesController";
 import { celebrate, Joi, Segments } from "celebrate";
+import autenticacao from '@middlewares/Autenticacao'
 
 const testeRouter = Router();
 const testeController = new TestesController()

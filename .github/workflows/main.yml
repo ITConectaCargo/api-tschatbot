@@ -21,13 +21,13 @@ jobs:
         password: ${{ secrets.ftp_password }}
         server-dir: chatbot/tschatbot-api/
 
-    - name: 🐳 Atualizando Docker
-      uses: appleboy/ssh-action@v1.0.0
-      with:
-        host: ${{ secrets.ftp_host }}
-        username: root
-        password: ${{ secrets.ssh_password }}
-        script: |
-          cd /home/inectar.com.br/chatbot/tschatbot-api
-          docker-compose down
-          docker-compose up -d --build
+    # - name: 🐳 Atualizando Docker
+    #   uses: appleboy/ssh-action@v1.0.0
+    #   with:
+    #     host: ${{ secrets.ftp_host }}
+    #     username: root
+    #     password: ${{ secrets.ssh_password }}
+    #     script: |
+    #       cd /home/inectar.com.br/chatbot/tschatbot-api
+    #       docker-compose down
+    #       docker-compose up -d --build

@@ -259,40 +259,5 @@ export default class UraAtivoService {
       await enviaMensagensMeta.Texto()
 
     }
-
-    // else if (fila.botStage == "validaAtendimento") {
-    //   //Caso mora em validaAtendimento positivo
-    //   if (ultimaMensagem.text == "1" || ultimaMensagem.text == "Sim") {
-    //     console.log("ura agendamento validaAtendimento")
-    //     let template = await Mensagem.buscaMensagemTemplate("validaAtendimento")
-    //     const texto = template
-
-    //     //coloca mensagem no Bot
-    //     botMensagem.text = texto
-    //     botMensagem.template = ""
-    //     fila.botStage = "0"
-    //     fila.status = "espera"
-    //     Ura.preparaMensagemBot(botMensagem, fila)
-    //   }
-    //   //Caso mora em validaAtendimento negativo
-    //   else if (ultimaMensagem.text == "2" || ultimaMensagem.text == "Não") {
-    //     console.log("ura agendamento validaAtendimento negativo")
-    //     let template = await Mensagem.buscaMensagemTemplate("validaAtendimento-negativa")
-    //     let texto = template
-
-    //     botMensagem.text = texto
-    //     botMensagem.template = ""
-    //     fila.botStage = "0"
-    //     fila.status = "finalizado"
-    //     Ura.preparaMensagemBot(botMensagem, fila)
-    //   }
-    //   //caso nao aperte botao
-    //   else {
-    //     botMensagem.template = "naoApertouBotao"
-    //     fila.botStage = "agendamento andar"
-    //     fila.attempts++
-    //     return Ura.preparaMensagemBot(botMensagem, fila)
-    //   }
-    // }
   }
 }

@@ -1,12 +1,14 @@
 import express, { Router } from "express";
 import { celebrate, Joi, Segments } from "celebrate";
 import ContatoController from "@controllers/ContatoController";
+import autenticacao from '@middlewares/Autenticacao'
 
 const contatoRouter = Router();
 const contatoController = new ContatoController()
 
 contatoRouter.post(
   "/",
+  autenticacao,
   celebrate({
     [Segments.BODY]: {
       nome: Joi.string().required(),
