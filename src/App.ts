@@ -2,10 +2,12 @@ import express, { NextFunction, Request, Response } from "express"
 import 'express-async-errors';
 import { errors } from 'celebrate';
 import cors from 'cors'
+import http from 'http';
 import routes from "./routes/Routes"
 import AppError from '@utils/AppError';
 import db from "@configs/DbMongo"
 import dotenv from 'dotenv'
+import { initializeSocketServer } from "@utils/SocketServer";
 dotenv.config()
 
 db.on("error", console.log.bind(console, 'Erro de conexao')) //teste de conexao com o mongoDb
@@ -36,4 +38,9 @@ app.use(
   },
 );
 
-export default app
+const server = http.createServer(app);
+
+// Inicia o servidor Socket.IO
+initializeSocketServer(server);
+
+export default app;

@@ -6,7 +6,6 @@ import TratarDadosService from "@services/uras/TratarDadosService";
 
 export default class WhatsappController {
   public async validacao(req: Request, res: Response): Promise<void> {
-    // Faz a validação com a API do WhatsApp
     const mode = req.query["hub.mode"];
     const challenge = req.query["hub.challenge"];
     const token = req.query["hub.verify_token"];
@@ -23,9 +22,10 @@ export default class WhatsappController {
   }
 
   public async recebeMensagemMeta(req: Request, res: Response): Promise<void> {
+    try {
     const objetoMeta: any = req.body;
     const mensagemMeta = objetoMeta.object ? objetoMeta.entry[0].changes[0].value : null;
-    try {
+
       if (mensagemMeta.metadata.phone_number_id !== process.env.PHONEID!) {
         console.log("testes interno");
         axios.post('https://chatapi.wesleymoraescon.repl.co/api/whatsapp', objetoMeta)
@@ -55,7 +55,7 @@ export default class WhatsappController {
         //   console.log(mensagemMeta.statuses[0].errors);
         // }
         // await Mensagem.atualizaStatusMensagem(mensagemId, status, errors);
-        // res.sendStatus(200);
+        res.sendStatus(200);
 
 
       } else if (mensagemMeta) {
@@ -114,8 +114,7 @@ export default class WhatsappController {
     } catch (error) {
       console.error(error);
       console.log('Mensagem recebida com erro');
-      res.sendStatus(500);
+      res.sendStatus(200);
     }
-    res.sendStatus(200);
   }
 }

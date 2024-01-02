@@ -13,7 +13,6 @@ export interface Mensagem extends Document {
   timestamp: string;
   tipo: string;
   modelo?: string;
-  parametros?: Record<string, unknown>;
   meta?: Record<string, unknown>;
   usuario?: Types.ObjectId;
   criadoEm: Date
@@ -32,7 +31,6 @@ const mensagemSchema = new Schema<Mensagem>(
     timestamp: { type: String },
     tipo: { type: String },
     modelo: { type: String },
-    parametros: { type: Object },
     meta: { type: Object },
     usuario: { type: Schema.Types.ObjectId, ref: 'usuarios' },
     criadoEm: { type: Date, default: Date.now },

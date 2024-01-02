@@ -2,6 +2,7 @@ import { Embarcador } from "@models/EmbarcadorModel";
 import { Mensagem } from "@models/MensagemModel";
 import { Minuta } from "@models/MinutaModel";
 import { Protocolo } from "@models/ProtocoloModel";
+import AtualizarMensagemService from "@services/mensagens/AtualizarMensagemService";
 import axios from 'axios'
 import moment from "moment";
 
@@ -24,6 +25,11 @@ export default class EnviaMensagensMetaService {
         }
       })
       const dados = resposta.data
+      const messageId = dados.messages[0].id
+      const atualizaStatus = new AtualizarMensagemService()
+      await atualizaStatus.idMensagem(this.mensagem._id, messageId)
+      await atualizaStatus.status(this.mensagem._id, 'sent')
+
     } catch (error: any) {
       const dados = error.response.data.error.message
       console.log('Erro Mensagem normal:')
@@ -70,7 +76,11 @@ export default class EnviaMensagensMetaService {
 
     try {
       const resposta = await axios.post(this.endpoint, query);
-      const dados = resposta.data;
+      const dados = resposta.data
+      const messageId = dados.messages[0].id
+      const atualizaStatus = new AtualizarMensagemService()
+      await atualizaStatus.idMensagem(this.mensagem._id, messageId)
+      await atualizaStatus.status(this.mensagem._id, 'sent')
     } catch (erro: any) {
       const dados = erro.response.data.error.message;
       console.log('Erro Mensagem opções:')
@@ -123,8 +133,11 @@ export default class EnviaMensagensMetaService {
 
     try {
       const resposta = await axios.post(this.endpoint, query);
-      const dados = resposta.data;
-
+      const dados = resposta.data
+      const messageId = dados.messages[0].id
+      const atualizaStatus = new AtualizarMensagemService()
+      await atualizaStatus.idMensagem(this.mensagem._id, messageId)
+      await atualizaStatus.status(this.mensagem._id, 'sent')
     } catch (erro: any) {
       const dados = erro.response.data.error.error_data.details;
       console.log('Erro Mensagem Lista:')
@@ -137,50 +150,99 @@ export default class EnviaMensagensMetaService {
     minuta: Minuta,
     embarcador: Embarcador
   ): Promise<void> {
-    await axios.post(this.endpoint, {
-      messaging_product: "whatsapp",
-      to: this.mensagem.destinatario,
-      type: "template",
-      template: {
-        namespace: "80bb8524_4de1_4ca7_a75b_acf1eaca87f1",
-        name: "agenda_devolucao",
-        language: {
-          code: "pt_BR",
-        },
-        components: [
-          {
-            type: "body",
-            parameters: [
-              { type: "text", text: protocolo.de.nome },
-              { type: "text", text: minuta.descricaoProduto },
-              { type: "text", text: embarcador.nome },
-              { type: "text", text: protocolo.de.endereco.rua },
-              { type: "text", text: protocolo.de.endereco.numero ? protocolo.de.endereco.numero : "⠀" },
-              { type: "text", text: protocolo.de.endereco.bairro },
-              { type: "text", text: protocolo.de.endereco.cidade },
-              { type: "text", text: protocolo.de.endereco.estado },
-              { type: "text", text: protocolo.de.endereco.cep },
-              { type: "text", text: minuta.checklist?.motivo ? minuta.checklist.motivo : "⠀" },
-              { type: "text", text: minuta.checklist?.detalhes ? minuta.checklist.detalhes : "⠀" },
-              { type: "text", text: `*${moment(minuta.dataAgendamento).format('DD/MM/yyyy')}*` },
-            ],
+    try {
+      const resposta = await axios.post(this.endpoint, {
+        messaging_product: "whatsapp",
+        to: this.mensagem.destinatario,
+        type: "template",
+        template: {
+          namespace: "80bb8524_4de1_4ca7_a75b_acf1eaca87f1",
+          name: "agenda_devolucao",
+          language: {
+            code: "pt_BR",
           },
-        ],
-      },
-    }).then(resposta => {
+          components: [
+            {
+              type: "body",
+              parameters: [
+                { type: "text", text: protocolo.de.nome },
+                { type: "text", text: minuta.descricaoProduto },
+                { type: "text", text: embarcador.nome },
+                { type: "text", text: protocolo.de.endereco.rua },
+                { type: "text", text: protocolo.de.endereco.numero ? protocolo.de.endereco.numero : "⠀" },
+                { type: "text", text: protocolo.de.endereco.bairro },
+                { type: "text", text: protocolo.de.endereco.cidade },
+                { type: "text", text: protocolo.de.endereco.estado },
+                { type: "text", text: protocolo.de.endereco.cep },
+                { type: "text", text: minuta.checklist?.motivo ? minuta.checklist.motivo : "⠀" },
+                { type: "text", text: minuta.checklist?.detalhes ? minuta.checklist.detalhes : "⠀" },
+                { type: "text", text: `*${moment(minuta.dataAgendamento).format('DD/MM/yyyy')}*` },
+              ],
+            },
+          ],
+        },
+      })
       const dados = resposta.data
-      console.log(dados)
+      const messageId = dados.messages[0].id
+      const atualizaStatus = new AtualizarMensagemService()
+      await atualizaStatus.idMensagem(this.mensagem._id, messageId)
+      await atualizaStatus.status(this.mensagem._id, 'sent')
       console.log(`Mensagem Template enviada para: ${protocolo.de.nome}`)
-    }).catch(erro => {
+    } catch (erro: any) {
       const dados = erro.response?.data?.error?.message;
       console.log('Erro ao Enviar Template META');
       console.log(dados);
-    })
+    }
   }
 
   public async TemplateSensiveis(
     mensagem: Mensagem
   ): Promise<void> {
 
+  }
+
+  public async imagem() {
+    try {
+      const resposta = await axios.post(this.endpoint, {
+        messaging_product: "whatsapp",
+        to: this.mensagem.destinatario,
+        type: "image",
+        image: {
+          link: `https://chatbot.devinectar.com.br/conversas/imagens/${this.mensagem.texto}.jpg`
+        }
+      })
+      const dados = resposta.data
+      const messageId = dados.messages[0].id
+      const atualizaStatus = new AtualizarMensagemService()
+      await atualizaStatus.idMensagem(this.mensagem._id, messageId)
+      await atualizaStatus.status(this.mensagem._id, 'sent')
+    } catch (error: any) {
+      const dados = error.response.data.error.message
+      console.log('Erro Mensagem normal:')
+      console.log(dados)
+    }
+  }
+
+  public async documento() {
+    try {
+      const resposta = await axios.post(this.endpoint, {
+        messaging_product: "whatsapp",
+        to: this.mensagem.destinatario,
+        type: "document",
+        document: {
+          link: `https://chatbot.devinectar.com.br/conversas/arquivos/${this.mensagem.texto}`,
+        },
+      })
+      const dados = resposta.data
+      const messageId = dados.messages[0].id
+      const atualizaStatus = new AtualizarMensagemService()
+      await atualizaStatus.idMensagem(this.mensagem._id, messageId)
+      await atualizaStatus.status(this.mensagem._id, 'sent')
+
+    } catch (error: any) {
+      const dados = error.response.data.error.message
+      console.log('Erro Mensagem normal:')
+      console.log(dados)
+    }
   }
 }

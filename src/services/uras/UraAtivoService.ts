@@ -9,6 +9,7 @@ import TranscricaoConversaService from "@services/mensagens/TranscricaoConversaS
 import ConsultaMinutaService from "@services/minutas/ConsultaMinutaService";
 import AtualizarProtocoloService from "@services/protocolo/AtualizarProtocoloService";
 import EnviaMensagensMetaService from "@services/whatsapp/EnviaMensagensMetaService";
+import AppError from "@utils/AppError";
 import Esl from "@utils/Esl";
 import moment from "moment";
 
@@ -18,6 +19,9 @@ export default class UraAtivoService {
       const consultaMinuta = new ConsultaMinutaService()
       const minuta = await consultaMinuta.porId(protocolo.minuta, true)
       await this.uraConvencional(protocolo, ultimaMensagem, minuta)
+    }
+    else {
+      throw new AppError('Protocolo sem minuta para envio de Ativo')
     }
   }
 

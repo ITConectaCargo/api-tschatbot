@@ -64,12 +64,14 @@ export default class UraReceptivoService {
       else if (ultimaMensagem.texto === 'Encerrar Conversa' || ultimaMensagem.texto === '2') {
         const mensagemTemplate = new ConsultaMensagemTemplateService('ura-finalizar-atendimento')
         const template = await mensagemTemplate.buscar()
+        const texto = template.replace('{{1}}', protocolo.protocolo)
+
         const botMensagem = await criarMensagem.executar({
           protocolo: protocolo.protocolo,
           remetente: contatoBot._id,
           destinatario: protocolo.de.telefone,
           tipo: 'text',
-          texto: template,
+          texto: texto,
           status: 'pendent',
           modelo: ''
         })
