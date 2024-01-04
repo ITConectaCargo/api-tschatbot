@@ -1,12 +1,15 @@
 import xlsx from 'xlsx';
-import fs from 'fs'
+import fs from 'fs';
 import { join } from 'path';
 import AppError from './AppError';
 
 export default class Excel {
-  public async lerDados(url: string): Promise<any[][]> {
+  public async lerDados(url: string): Promise<string[][]> {
     if (!fs.existsSync(url)) {
-      throw new AppError('O arquivo não foi encontrado no caminho especificado', 404);
+      throw new AppError(
+        'O arquivo não foi encontrado no caminho especificado',
+        404,
+      );
     }
 
     const workbook = xlsx.readFile(url);
@@ -15,24 +18,22 @@ export default class Excel {
     const dadosExcel = xlsx.utils.sheet_to_json(worksheet, { header: 1 });
 
     if (!dadosExcel) {
-      throw new AppError('Erro ao ler Excel')
+      throw new AppError('Erro ao ler Excel');
     }
 
-    return dadosExcel as any[][];
-  };
+    return dadosExcel as string[][];
+  }
 
   public async criaPlanilha(
-    colunas: any[],
-    dados: any[][],
+    colunas: string[],
+    dados: string[][],
     url: string,
-    nomeArquivo: string
+    nomeArquivo: string,
   ): Promise<string> {
     try {
       const newWorkbook = xlsx.utils.book_new();
 
-      const worksheet = xlsx.utils.aoa_to_sheet([
-        colunas, ...dados
-      ]);
+      const worksheet = xlsx.utils.aoa_to_sheet([colunas, ...dados]);
       xlsx.utils.book_append_sheet(newWorkbook, worksheet, 'Planilha');
 
       const localArquivo = join(url, `${nomeArquivo}.xlsx`);
@@ -40,8 +41,8 @@ export default class Excel {
 
       return localArquivo;
     } catch (error) {
-      console.log(error)
-      throw new AppError('Erro ao criar Planilha')
+      console.log(error);
+      throw new AppError('Erro ao criar Planilha');
     }
   }
 }

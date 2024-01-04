@@ -1,13 +1,13 @@
-import express, { Router } from "express";
-import { celebrate, Joi, Segments } from "celebrate";
-import ContatoController from "@controllers/ContatoController";
-import autenticacao from '@middlewares/Autenticacao'
+import { Router } from 'express';
+import { celebrate, Joi, Segments } from 'celebrate';
+import ContatoController from '@controllers/ContatoController';
+import autenticacao from '@middlewares/Autenticacao';
 
 const contatoRouter = Router();
-const contatoController = new ContatoController()
+const contatoController = new ContatoController();
 
 contatoRouter.post(
-  "/",
+  '/',
   autenticacao,
   celebrate({
     [Segments.BODY]: {
@@ -26,10 +26,10 @@ contatoRouter.post(
         complemento: Joi.string(),
       },
       admin: Joi.boolean(),
-      estaAtivo:  Joi.boolean(),
+      estaAtivo: Joi.boolean(),
     },
   }),
-  contatoController.criar
+  contatoController.criar,
 );
 
 export default contatoRouter;

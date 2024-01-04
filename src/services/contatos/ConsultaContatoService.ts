@@ -1,24 +1,24 @@
-import ContatoModel, { Contato } from "@models/ContatoModel";
-import AppError from "@utils/AppError";
-import { Types } from "mongoose";
+import ContatoModel, { Contato } from '@models/ContatoModel';
+import AppError from '@utils/AppError';
+import { Types } from 'mongoose';
 
 export default class ConsultaContatoService {
   public async porCpfCnpj(cpfCnpj: string): Promise<Contato | null> {
     const contato = await ContatoModel.findOne({ cpfCnpj });
 
     if (!contato?.estaAtivo) {
-      return null
+      return null;
     }
-    return contato
+    return contato;
   }
 
   public async porTelefone(telefone: string): Promise<Contato | null> {
     const contato = await ContatoModel.findOne({ telefone: telefone });
 
     if (!contato?.estaAtivo) {
-      return null
+      return null;
     }
-    return contato
+    return contato;
   }
 
   public async porId(id: Types.ObjectId): Promise<Contato | null> {
@@ -27,7 +27,7 @@ export default class ConsultaContatoService {
     if (!contato?.estaAtivo) {
       return null;
     }
-    return contato
+    return contato;
   }
 
   public async contatoAdm(): Promise<Contato> {
@@ -36,7 +36,6 @@ export default class ConsultaContatoService {
     if (!contato || contato?.estaAtivo === false) {
       throw new AppError('Contato Admin Não localizado ou Contato desativado');
     }
-    return contato
-
+    return contato;
   }
 }

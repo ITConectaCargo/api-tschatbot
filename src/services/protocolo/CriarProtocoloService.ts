@@ -1,16 +1,16 @@
-import ProtocoloModel, { Protocolo } from "@models/ProtocoloModel"
-import ConsultaContatoService from "@services/contatos/ConsultaContatoService"
-import ConsultaMinutaService from "@services/minutas/ConsultaMinutaService"
-import AppError from "@utils/AppError"
-import { Types } from "mongoose"
+import ProtocoloModel, { Protocolo } from '@models/ProtocoloModel';
+import ConsultaContatoService from '@services/contatos/ConsultaContatoService';
+import ConsultaMinutaService from '@services/minutas/ConsultaMinutaService';
+import AppError from '@utils/AppError';
+import { Types } from 'mongoose';
 
 interface ProtocoloParams {
-  remetenteId: Types.ObjectId
-  remetenteNumero: string
-  destinatarioNumero: string
-  origem: string
-  numeroMinuta?: string
-  sensivel?: boolean
+  remetenteId: Types.ObjectId;
+  remetenteNumero: string;
+  destinatarioNumero: string;
+  origem: string;
+  numeroMinuta?: string;
+  sensivel?: boolean;
 }
 
 export default class CriarProtocoloService {
@@ -20,53 +20,51 @@ export default class CriarProtocoloService {
     destinatarioNumero,
     origem,
     numeroMinuta = '',
-    sensivel = false
+    sensivel = false,
   }: ProtocoloParams): Promise<Protocolo> {
-    const consultaContato = new ConsultaContatoService()
-    const consultaMinuta = new ConsultaMinutaService()
+    const consultaContato = new ConsultaContatoService();
+    const consultaMinuta = new ConsultaMinutaService();
 
-    const protocolo = await this.gerarNumeroProtocolo(remetenteNumero)
-    const contato = await consultaContato.porId(remetenteId)
-    const minuta = await consultaMinuta.porMinutaHoje(numeroMinuta)
+    const protocolo = await this.gerarNumeroProtocolo(remetenteNumero);
+    const contato = await consultaContato.porId(remetenteId);
+    const minuta = await consultaMinuta.porMinutaHoje(numeroMinuta);
 
     if (!contato) {
-      throw new AppError("Contato nao encontrado para criar um protocolo")
+      throw new AppError('Contato nao encontrado para criar um protocolo');
     }
 
-    const novoProtocolo = new ProtocoloModel(
-      {
-        protocolo,
-        de: {
-          _id: contato._id,
-          nome: contato.nome,
-          telefone: remetenteNumero,
-          cpfCnpj: contato.cpfCnpj || '',
-          endereco: {
-            rua: contato.endereco?.rua || '',
-            numero: contato.endereco?.numero || '',
-            bairro: contato.endereco?.bairro || '',
-            cidade: contato.endereco?.cidade || '',
-            estado: contato.endereco?.estado || '',
-            cep: contato.endereco?.cep || '',
-            complemento: contato.endereco?.complemento || ''
-          }
+    const novoProtocolo = new ProtocoloModel({
+      protocolo,
+      de: {
+        _id: contato._id,
+        nome: contato.nome,
+        telefone: remetenteNumero,
+        cpfCnpj: contato.cpfCnpj || '',
+        endereco: {
+          rua: contato.endereco?.rua || '',
+          numero: contato.endereco?.numero || '',
+          bairro: contato.endereco?.bairro || '',
+          cidade: contato.endereco?.cidade || '',
+          estado: contato.endereco?.estado || '',
+          cep: contato.endereco?.cep || '',
+          complemento: contato.endereco?.complemento || '',
         },
-        para: destinatarioNumero,
-        status: 'ura',
-        estagioBot: 'inicio',
-        origem: origem,
-        minuta: minuta?._id || null,
-        sensivel: sensivel,
-      }
-    )
+      },
+      para: destinatarioNumero,
+      status: 'ura',
+      estagioBot: 'inicio',
+      origem: origem,
+      minuta: minuta?._id || null,
+      sensivel: sensivel,
+    });
 
-    const protocoloSalvo = await novoProtocolo.save()
+    const protocoloSalvo = await novoProtocolo.save();
 
     if (!protocoloSalvo) {
-      throw new AppError("Erro ao criar protocolo")
+      throw new AppError('Erro ao criar protocolo');
     }
 
-    return protocoloSalvo
+    return protocoloSalvo;
   }
 
   private async gerarNumeroProtocolo(telefone: string): Promise<string> {

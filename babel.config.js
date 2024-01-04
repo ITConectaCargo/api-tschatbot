@@ -13,6 +13,7 @@ module.exports = {
         "@controllers": "./src/controllers",
         "@utils": "./src/utils",
         "@enums": "./src/enums",
+        "@interfaces": "./src/interfaces",
         "@configs": "./src/configs"
       }
     }],

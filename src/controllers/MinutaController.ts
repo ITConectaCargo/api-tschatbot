@@ -1,6 +1,3 @@
+class MinutaController {}
 
-class MinutaController {
-
-}
-
-export default MinutaController
+export default MinutaController;

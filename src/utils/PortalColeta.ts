@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import sql from '@configs/DbSql';
 import { MysqlError } from 'mysql';
 
@@ -19,10 +20,10 @@ export default class PortalColeta {
       JOIN cidades ON bairros.cidade_id = cidades.id
       JOIN ufs ON cidades.uf_id = ufs.id
       WHERE coletas.chave_nf = '${chaveNfe}'
-    `
+    `;
 
     const results = await this.executaQuery(query, [chaveNfe]);
-    return results
+    return results;
   }
 
   public async consultaEmbarcador(chaveNfe: string): Promise<any> {
@@ -31,10 +32,10 @@ export default class PortalColeta {
       JOIN embarcadores ON embarcadores.id = coletas.embarcador_id
       JOIN entidades ON entidades.id = embarcadores.entidade_id
       WHERE coletas.chave_nf = '${chaveNfe}';
-    `
+    `;
 
     const results = await this.executaQuery(query, [chaveNfe]);
-    return results
+    return results;
   }
 
   public async consultaProduto(chaveNfe: string): Promise<string> {
@@ -45,16 +46,15 @@ export default class PortalColeta {
     JOIN produtos ON produtos.cod_produto = produtosNf.cod_produto
     WHERE coletas.chave_nf = '${chaveNfe}'
     GROUP BY produtos.cod_produto
-    `
+    `;
 
     const results = await this.executaQuery(query, [chaveNfe]);
 
-    if(results[0]) {
-      const descricao = results[0].descricao_produto
-      return descricao
-    }
-    else {
-      return "Produto não cadastrado"
+    if (results[0]) {
+      const descricao = results[0].descricao_produto;
+      return descricao;
+    } else {
+      return 'Produto não cadastrado';
     }
   }
 
@@ -63,25 +63,33 @@ export default class PortalColeta {
       SELECT * FROM bot_checklist WHERE raizCnpj = ${raizCnpj}
     `;
 
-    const resultado = await this.executaQuery(query, [raizCnpj])
-    return resultado
+    const resultado = await this.executaQuery(query, [raizCnpj]);
+    return resultado;
   }
 
-  private async executaQuery(query: string, params: any[], timeout: number = 600000): Promise<any[]> {
+  private async executaQuery(
+    query: string,
+    params: any[],
+    timeout: number = 600000,
+  ): Promise<any[]> {
     return new Promise<any[]>((resolve, reject) => {
       const timeoutId = setTimeout(() => {
         reject({ message: 'Tempo limite excedido ao executar a consulta.' });
       }, timeout);
 
-      PortalColeta.dbSql.query(query, params, (error: MysqlError | null, results?: any[]) => {
-        clearTimeout(timeoutId);
-        if (error) {
-          console.error('Erro ao executar a consulta: ' + error.stack);
-          reject({ message: 'Erro ao buscar dados.' });
-        } else {
-          resolve(results || []);
-        }
-      });
+      PortalColeta.dbSql.query(
+        query,
+        params,
+        (error: MysqlError | null, results?: any[]) => {
+          clearTimeout(timeoutId);
+          if (error) {
+            console.error('Erro ao executar a consulta: ' + error.stack);
+            reject({ message: 'Erro ao buscar dados.' });
+          } else {
+            resolve(results || []);
+          }
+        },
+      );
     });
   }
 }

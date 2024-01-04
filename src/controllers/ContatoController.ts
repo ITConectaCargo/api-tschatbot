@@ -1,5 +1,5 @@
-import CriarContatoService from "@services/contatos/CriarContatoService";
-import { Request, Response } from "express";
+import CriarContatoService from '@services/contatos/CriarContatoService';
+import { Request, Response } from 'express';
 
 export default class ContatoController {
   public async criar(req: Request, res: Response): Promise<void> {
@@ -20,16 +20,15 @@ export default class ContatoController {
       },
       admin: req.body.admin,
       estaAtivo: req.body.estaAtivo,
-    }
+    };
 
-    const criarContato = new CriarContatoService()
-    const contatoCriado = await criarContato.executar(contato)
+    const criarContato = new CriarContatoService();
+    const contatoCriado = await criarContato.executar(contato);
 
-    if(contatoCriado) {
-      res.status(200).json(contatoCriado)
-    }
-    else {
-      res.status(400).json({message: 'Erro ao criar'})
+    if (contatoCriado) {
+      res.status(200).json(contatoCriado);
+    } else {
+      res.status(400).json({ message: 'Erro ao criar' });
     }
   }
 }

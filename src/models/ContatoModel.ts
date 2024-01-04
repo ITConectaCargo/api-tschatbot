@@ -1,29 +1,5 @@
-import { Document, Schema, Types, model } from "mongoose";
-
-interface Endereco {
-  rua?: string;
-  numero?: string;
-  bairro?: string;
-  cidade?: string;
-  estado?: string;
-  cep?: string;
-  complemento?: string;
-  referencia?: string;
-}
-
-export interface Contato extends Document {
-  _id: Types.ObjectId;
-  nome: string;
-  telefone: string;
-  telefone2?: string;
-  telefone3?: string;
-  cpfCnpj?: string;
-  endereco?: Endereco;
-  admin?: boolean;
-  estaAtivo?: boolean;
-  criadoEm: Date;
-  atualizadoEm?: Date
-}
+import { Schema, model } from 'mongoose';
+import { Contato } from '@Interfaces/Icontato';
 
 const contatoSchema = new Schema<Contato>({
   nome: { type: String, required: true },
@@ -44,9 +20,9 @@ const contatoSchema = new Schema<Contato>({
   admin: { type: Boolean },
   estaAtivo: { type: Boolean },
   criadoEm: { type: Date, default: Date.now },
-  atualizadoEm: { type: Date }
+  atualizadoEm: { type: Date },
 });
 
-const ContatoModel = model<Contato>("contatos", contatoSchema);
+const ContatoModel = model<Contato>('contatos', contatoSchema);
 
 export default ContatoModel;

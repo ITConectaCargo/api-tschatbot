@@ -12,6 +12,6 @@ services:
     ports:
       - "3333:3333"
     volumes:
-      - /home/devinectar.com.br/chatbot/conversas/:/Chatbot/arquivos
+      - /home/inectar.com.br/chatbot/conversas/:/Chatbot/arquivos
     container_name: tschatbot-api
     restart: always

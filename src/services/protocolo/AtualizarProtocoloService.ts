@@ -1,11 +1,11 @@
-import ProtocoloModel, { Protocolo } from "@models/ProtocoloModel";
-import moment from "moment";
-import { Types } from "mongoose";
+import ProtocoloModel, { Protocolo } from '@models/ProtocoloModel';
+import moment from 'moment';
+import { Types } from 'mongoose';
 
 interface ProtocoloParams {
-  _id: Types.ObjectId,
-  status: string,
-  estagioBot: string,
+  _id: Types.ObjectId;
+  status: string;
+  estagioBot: string;
 }
 
 export default class AtualizarProtocoloService {
@@ -21,11 +21,10 @@ export default class AtualizarProtocoloService {
         estagioBot,
         atualizadoEm: moment(),
       },
-      { new: true }
-    )
+      { new: true },
+    );
 
-    if (protocolo) return protocolo
-    return null
+    if (protocolo) return protocolo;
+    return null;
   }
 }
-

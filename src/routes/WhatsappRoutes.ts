@@ -1,12 +1,10 @@
-import express, { Router } from "express";
-import WhatsappController from "@controllers/WhatsappController";
-
+import { Router } from 'express';
+import WhatsappController from '@controllers/WhatsappController';
 
 const whatsappRouter = Router();
-const whatsappController = new WhatsappController()
+const whatsappController = new WhatsappController();
 
-
-whatsappRouter.get("/", whatsappController.validacao)
-whatsappRouter.post("/", whatsappController.recebeMensagemMeta);
+whatsappRouter.get('/', whatsappController.validacao);
+whatsappRouter.post('/', whatsappController.recebeMensagemMeta);
 
 export default whatsappRouter;

@@ -8,8 +8,8 @@ export enum Ocorrencia {
 }
 
 export const DescricaoOcorrencias: Record<Ocorrencia, string> = {
-  [Ocorrencia.Agendar]: "A Agendar",
-  [Ocorrencia.ProdutoDevolvido]: "Produto Devolvido",
-  [Ocorrencia.ProdutoDivergente]: "Produto Divergente",
-  [Ocorrencia.FicarComProduto]: "Vai Ficar com o Produto",
+  [Ocorrencia.Agendar]: 'A Agendar',
+  [Ocorrencia.ProdutoDevolvido]: 'Produto Devolvido',
+  [Ocorrencia.ProdutoDivergente]: 'Produto Divergente',
+  [Ocorrencia.FicarComProduto]: 'Vai Ficar com o Produto',
 };

@@ -1,13 +1,13 @@
-import express, { Router } from "express";
-import { celebrate, Joi, Segments } from "celebrate";
-import UsuarioController from "@controllers/UsuarioController";
-import autenticacao from '@middlewares/Autenticacao'
+import { Router } from 'express';
+import { celebrate, Joi, Segments } from 'celebrate';
+import UsuarioController from '@controllers/UsuarioController';
+import autenticacao from '@middlewares/Autenticacao';
 
 const usuarioRouter = Router();
-const usuarioController = new UsuarioController()
+const usuarioController = new UsuarioController();
 
 usuarioRouter.post(
-  "/criar",
+  '/criar',
   autenticacao,
   celebrate({
     [Segments.BODY]: {
@@ -19,29 +19,29 @@ usuarioRouter.post(
       departamento: Joi.string(),
     },
   }),
-  usuarioController.criar
+  usuarioController.criar,
 );
 
 usuarioRouter.post(
-  "/login",
+  '/login',
   celebrate({
     [Segments.BODY]: {
       email: Joi.string().required(),
       senha: Joi.string().required(),
     },
   }),
-  usuarioController.logar
+  usuarioController.logar,
 );
 
 usuarioRouter.get(
-  "/:id",
+  '/:id',
   autenticacao,
   celebrate({
     [Segments.PARAMS]: {
       id: Joi.string().required(),
     },
   }),
-  usuarioController.consulta
+  usuarioController.consulta,
 );
 
 export default usuarioRouter;

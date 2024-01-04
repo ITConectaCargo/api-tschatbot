@@ -1,6 +1,6 @@
-import MensagemModel, { Mensagem } from "@models/MensagemModel";
-import moment from "moment";
-import { Types } from "mongoose";
+import MensagemModel, { Mensagem } from '@models/MensagemModel';
+import moment from 'moment';
+import { Types } from 'mongoose';
 
 interface MensagemParams {
   protocolo?: string;
@@ -26,9 +26,8 @@ export default class CriarMensagemService {
     tipo,
     modelo,
     parametros,
-    usuario
+    usuario,
   }: MensagemParams): Promise<Mensagem> {
-
     const novaMensagem = new MensagemModel({
       protocolo,
       remetente,
@@ -41,10 +40,10 @@ export default class CriarMensagemService {
       tipo,
       modelo,
       parametros,
-      usuario
-    })
+      usuario,
+    });
 
-    const mensagemSalva = await novaMensagem.save()
-    return mensagemSalva
+    const mensagemSalva = await novaMensagem.save();
+    return mensagemSalva;
   }
 }

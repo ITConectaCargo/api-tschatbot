@@ -1,7 +1,7 @@
-import ContatoModel, { Contato } from "@models/ContatoModel";
-import AppError from "@utils/AppError";
-import moment from "moment";
-import { Types } from "mongoose";
+import ContatoModel, { Contato } from '@models/ContatoModel';
+import AppError from '@utils/AppError';
+import moment from 'moment';
+import { Types } from 'mongoose';
 
 interface Endereco {
   rua?: string;
@@ -49,12 +49,12 @@ export default class AtualizarContatoService {
         endereco,
         admin,
         estaAtivo,
-        atualizadoEm: moment()
+        atualizadoEm: moment(),
       },
-      { new: true } // Retorna o documento atualizado
+      { new: true }, // Retorna o documento atualizado
     );
 
-    if(!contatoAtualizado) {
+    if (!contatoAtualizado) {
       throw new AppError('Contato não localizado');
     }
 

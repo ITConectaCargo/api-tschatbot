@@ -1,43 +1,49 @@
 import moment from 'moment';
 import AppError from './AppError';
-import { Minuta } from '@models/MinutaModel';
 import { GraphQLClient, gql } from 'graphql-request';
 import AtualizarMinutaService from '@services/minutas/AtualizarMinutaServices';
 import { DescricaoOcorrencias, Ocorrencia } from '@enums/Ocorrencias';
 import axios from 'axios';
+import { Minuta } from '@Interfaces/IMinuta';
 
 interface ultimaOcorrencia {
-  codigoOcorrencia: number
-  descricaoOcorrencia: string
+  codigoOcorrencia: number;
+  descricaoOcorrencia: string;
 }
 
 export default class Esl {
-  public async consultarOcorrencia(chaveNfe: string): Promise<ultimaOcorrencia> {
-    let urlESL = `https://conecta.eslcloud.com.br/api/invoice_occurrences?invoice_key=${chaveNfe}`
+  public async consultarOcorrencia(
+    chaveNfe: string,
+  ): Promise<ultimaOcorrencia> {
+    const urlESL = `https://conecta.eslcloud.com.br/api/invoice_occurrences?invoice_key=${chaveNfe}`;
 
     let response = await fetch(urlESL, {
       headers: {
-        Authorization: `Bearer ${process.env.TOKENCONSULTAELS}`
-      }
+        Authorization: `Bearer ${process.env.TOKENCONSULTAELS}`,
+      },
     });
 
-    let dados: any = await response.json();
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const dados: any = await response.json();
     if (dados.paging.next_id) {
       response = await fetch(urlESL + `&start=${dados.paging.next_id}`, {
         headers: {
-          Authorization: `Bearer ${process.env.TOKENCONSULTAELS}`
-        }
+          Authorization: `Bearer ${process.env.TOKENCONSULTAELS}`,
+        },
       });
-      const pagina: any = await response.json()
-      dados.data.push(...pagina.data)
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const pagina: any = await response.json();
+      dados.data.push(...pagina.data);
     }
 
-    const ocorrencias = dados.data
-    let dataMaisRecente = ocorrencias[0].occurrence_at
+    const ocorrencias = dados.data;
+    let dataMaisRecente = ocorrencias[0].occurrence_at;
     let objetoMaisRecente = null;
 
     for (const ocorrencia of ocorrencias) {
-      let ocorrenciaAtual = moment(ocorrencia.occurrence_at).format('YYYY-MM-DDTHH:mm:ss');
+      const ocorrenciaAtual = moment(ocorrencia.occurrence_at).format(
+        'YYYY-MM-DDTHH:mm:ss',
+      );
       if (ocorrenciaAtual >= dataMaisRecente) {
         dataMaisRecente = ocorrenciaAtual;
         objetoMaisRecente = ocorrencia;
@@ -47,22 +53,32 @@ export default class Esl {
     if (objetoMaisRecente) {
       return {
         codigoOcorrencia: Number(objetoMaisRecente.occurrence.code),
-        descricaoOcorrencia: String(objetoMaisRecente.occurrence.description)
-      }
+        descricaoOcorrencia: String(objetoMaisRecente.occurrence.description),
+      };
     } else {
-      throw new AppError("Ocorrencias nao encontradas na ESL")
+      throw new AppError('Ocorrencias nao encontradas na ESL');
     }
   }
 
-  public async enviaOcorrenciaComTratativa(comentario: string, ocorrencia: number, minuta: Minuta): Promise<boolean> {
-    const client = new GraphQLClient('https://conecta.eslcloud.com.br/graphql', {
-      headers: {
-        Authorization: `Bearer ${process.env.TOKENAGENDAMENTOELS}`,
+  public async enviaOcorrenciaComTratativa(
+    comentario: string,
+    ocorrencia: number,
+    minuta: Minuta,
+  ): Promise<boolean> {
+    const client = new GraphQLClient(
+      'https://conecta.eslcloud.com.br/graphql',
+      {
+        headers: {
+          Authorization: `Bearer ${process.env.TOKENAGENDAMENTOELS}`,
+        },
       },
-    });
+    );
 
     const query = gql`
-      mutation ReversePickFreightScheduleCreate($key: String!, $params: FreightScheduleInput!) {
+      mutation ReversePickFreightScheduleCreate(
+        $key: String!
+        $params: FreightScheduleInput!
+      ) {
         reversePickFreightScheduleCreate(key: $key, params: $params) {
           errors
           success
@@ -80,7 +96,9 @@ export default class Esl {
           comments: comentario,
         },
         ...(ocorrencia === 300 && {
-          schedulingDate: moment(minuta.dataAgendamento).format('YYYY-MM-DDTHH:mm:ss.SSSZ'),
+          schedulingDate: moment(minuta.dataAgendamento).format(
+            'YYYY-MM-DDTHH:mm:ss.SSSZ',
+          ),
           schedulingPeriod: 'all',
         }),
       },
@@ -101,51 +119,57 @@ export default class Esl {
       if (result.success) {
         console.log(result.success);
 
-        minuta.codigoOcorrencia = ocorrencia
-        minuta.descricaoOcorrencia = DescricaoOcorrencias[ocorrencia as Ocorrencia]
-        const atualizarMinuta = new AtualizarMinutaService()
-        await atualizarMinuta.porId(minuta)
-        return true
+        minuta.codigoOcorrencia = ocorrencia;
+        minuta.descricaoOcorrencia =
+          DescricaoOcorrencias[ocorrencia as Ocorrencia];
+        const atualizarMinuta = new AtualizarMinutaService();
+        await atualizarMinuta.porId(minuta);
+        return true;
       } else {
         console.log('Erro ao enviar ocorrência para ESL');
         console.log(result.errors[0]);
-        return false
+        return false;
       }
     } catch (error) {
       console.error(error);
-      return false
+      return false;
     }
   }
 
-  public async enviaOcorrencia(comentario: string, ocorrencia: number, chaveNfe: string): Promise<boolean> {
+  public async enviaOcorrencia(
+    comentario: string,
+    ocorrencia: number,
+    chaveNfe: string,
+  ): Promise<boolean> {
     try {
       const resposta = await axios.post(
         'https://conecta.eslcloud.com.br/api/invoice_occurrences',
         {
-          "invoice_occurrence": {
-            "receiver": "",
-            "document_number": "",
-            "comments": comentario,
-            "occurrence_at": moment().format('YYYY-MM-DDTHH:mm:ss.SSSZ'),
-            "occurrence": {
-              "code": ocorrencia
+          invoice_occurrence: {
+            receiver: '',
+            document_number: '',
+            comments: comentario,
+            occurrence_at: moment().format('YYYY-MM-DDTHH:mm:ss.SSSZ'),
+            occurrence: {
+              code: ocorrencia,
             },
-            "invoice": {
-              "key": chaveNfe
-            }
-          }
+            invoice: {
+              key: chaveNfe,
+            },
+          },
         },
         {
           headers: {
-            'Authorization': `Bearer ${process.env.TOKENCONSULTAELS}`
-          }
-        }
+            Authorization: `Bearer ${process.env.TOKENCONSULTAELS}`,
+          },
+        },
       );
 
       console.log(`Ocorrência: ${ocorrencia} enviada com sucesso`);
       console.log(resposta.data);
 
       return true;
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
       console.log(`Erro ao enviar ocorrência: ${ocorrencia}`);
       console.log(error.message);

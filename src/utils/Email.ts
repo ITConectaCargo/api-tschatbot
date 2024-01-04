@@ -1,12 +1,12 @@
 import nodemailer, { Transporter, SendMailOptions } from 'nodemailer';
 import dotenv from 'dotenv';
-import AppError from '@utils/AppError'; // Substitua pelo caminho correto para o AppError
 dotenv.config();
 
 interface EmailParams {
   destinatarios: string[];
   assunto: string;
   corpoEmail: string;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   anexos: any[];
 }
 
@@ -29,8 +29,8 @@ export default class Email {
       const info = await transporter.sendMail(mailOptions);
       console.log('E-mail enviado:', info.response);
     } catch (error) {
-      console.log(`Erro ao enviar Email`)
-      console.log(error)
+      console.log(`Erro ao enviar Email`);
+      console.log(error);
     }
   }
 
@@ -41,13 +41,14 @@ export default class Email {
     anexos,
   }: EmailParams): Promise<void> {
     try {
-      let emails = [...destinatarios];
+      const emails = [...destinatarios];
       const indiceBot = destinatarios.indexOf(process.env.EMAILBOT!);
       if (indiceBot !== -1) {
         emails.splice(indiceBot, 1);
       }
       console.log(emails);
 
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       let attachments: any[] = [];
 
       if (anexos) {
@@ -64,7 +65,7 @@ export default class Email {
 
       await this.transmitir(mailOptions);
     } catch (error) {
-      console.log(error)
+      console.log(error);
     }
   }
 }

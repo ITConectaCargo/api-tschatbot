@@ -1,5 +1,5 @@
-import MensagemTemplateModel from "@models/MensagemTemplateModel";
-import AppError from "@utils/AppError";
+import MensagemTemplateModel from '@models/MensagemTemplateModel';
+import AppError from '@utils/AppError';
 
 export default class ConsultaMensagemTemplateService {
   private modelo: string;
@@ -9,7 +9,9 @@ export default class ConsultaMensagemTemplateService {
   }
 
   public async buscar(): Promise<string> {
-    const mensagemTemplate = await MensagemTemplateModel.findOne({ modelo: this.modelo });
+    const mensagemTemplate = await MensagemTemplateModel.findOne({
+      modelo: this.modelo,
+    });
 
     if (!mensagemTemplate) {
       throw new AppError('Mensagem Template nao encontrada');

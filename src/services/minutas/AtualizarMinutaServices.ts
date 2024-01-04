@@ -1,18 +1,17 @@
-import { Embarcador } from "@models/EmbarcadorModel";
-import MinutaModel, { Minuta } from "@models/MinutaModel";
-import AppError from "@utils/AppError";
-import moment, { Moment } from "moment";
-import { Types } from "mongoose";
-
+import { Embarcador } from '@models/EmbarcadorModel';
+import MinutaModel, { Minuta } from '@models/MinutaModel';
+import AppError from '@utils/AppError';
+import moment, { Moment } from 'moment';
+import { Types } from 'mongoose';
 
 interface MinutaParams {
-  _id: Types.ObjectId,
-  descricaoProduto?: string,
-  dataAgendamento?: Moment,
-  protocolo?: string[]
-  embarcador?: Types.ObjectId | Embarcador
-  agendado?: boolean,
-  agendadoPor?: string
+  _id: Types.ObjectId;
+  descricaoProduto?: string;
+  dataAgendamento?: Moment;
+  protocolo?: string[];
+  embarcador?: Types.ObjectId | Embarcador;
+  agendado?: boolean;
+  agendadoPor?: string;
 }
 
 export default class AtualizarMinutaService {
@@ -34,15 +33,15 @@ export default class AtualizarMinutaService {
         embarcador,
         agendado,
         agendadoPor,
-        atualizadoEm: moment()
+        atualizadoEm: moment(),
       },
-      { new: true }
-    )
+      { new: true },
+    );
 
-    if(!minutaAtualizada) {
-      throw new AppError('Minuta não encontrada')
+    if (!minutaAtualizada) {
+      throw new AppError('Minuta não encontrada');
     }
 
-    return minutaAtualizada
+    return minutaAtualizada;
   }
 }
