@@ -1,4 +1,5 @@
-import ProtocoloModel, { Protocolo } from '@models/ProtocoloModel';
+import { Protocolo } from '@Interfaces/IProtocolo';
+import ProtocoloModel from '@models/ProtocoloModel';
 import moment from 'moment';
 import { Types } from 'mongoose';
 

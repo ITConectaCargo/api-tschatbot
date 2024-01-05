@@ -1,5 +1,5 @@
-import { Mensagem } from '@models/MensagemModel';
-import { Protocolo } from '@models/ProtocoloModel';
+import { Mensagem } from '@Interfaces/IMensagem';
+import { Protocolo } from '@Interfaces/IProtocolo';
 import ConsultaContatoService from '@services/contatos/ConsultaContatoService';
 import ConsultaMensagemTemplateService from '@services/mensagemTemplate/ConsultaMensagemService';
 import CriarMensagemService from '@services/mensagens/CriarMensagemService';

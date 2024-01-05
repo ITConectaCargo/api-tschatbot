@@ -1,4 +1,5 @@
-import MinutaModel, { Minuta } from '@models/MinutaModel';
+import { Minuta } from '@Interfaces/IMinuta';
+import MinutaModel from '@models/MinutaModel';
 import AppError from '@utils/AppError';
 import moment from 'moment';
 import { Types } from 'mongoose';

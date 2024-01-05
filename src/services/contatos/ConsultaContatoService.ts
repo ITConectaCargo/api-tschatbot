@@ -1,4 +1,5 @@
-import ContatoModel, { Contato } from '@models/ContatoModel';
+import { Contato } from '@Interfaces/IContato';
+import ContatoModel from '@models/ContatoModel';
 import AppError from '@utils/AppError';
 import { Types } from 'mongoose';
 

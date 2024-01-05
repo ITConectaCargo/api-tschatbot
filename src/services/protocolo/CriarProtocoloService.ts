@@ -1,4 +1,5 @@
-import ProtocoloModel, { Protocolo } from '@models/ProtocoloModel';
+import { Protocolo } from '@Interfaces/IProtocolo';
+import ProtocoloModel from '@models/ProtocoloModel';
 import ConsultaContatoService from '@services/contatos/ConsultaContatoService';
 import ConsultaMinutaService from '@services/minutas/ConsultaMinutaService';
 import AppError from '@utils/AppError';

@@ -1,7 +1,7 @@
+import { Mensagem } from '@Interfaces/IMensagem';
+import { Minuta } from '@Interfaces/IMinuta';
+import { Protocolo } from '@Interfaces/IProtocolo';
 import EmbarcadorModel from '@models/EmbarcadorModel';
-import { Mensagem } from '@models/MensagemModel';
-import { Minuta } from '@models/MinutaModel';
-import { Protocolo } from '@models/ProtocoloModel';
 import ConsultaContatoService from '@services/contatos/ConsultaContatoService';
 import ConsultaMensagemTemplateService from '@services/mensagemTemplate/ConsultaMensagemService';
 import CriarMensagemService from '@services/mensagens/CriarMensagemService';

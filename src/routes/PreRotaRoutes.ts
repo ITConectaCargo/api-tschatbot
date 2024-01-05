@@ -1,14 +1,15 @@
 import { Router } from 'express';
 import { celebrate, Joi, Segments } from 'celebrate';
 import PreRotaController from '@controllers/PreRotaController';
-import autenticacao from '@middlewares/Autenticacao';
+import Autenticacao from '@middlewares/Autenticacao';
+import Upload from '@middlewares/Upload';
 
 const preRotaRouter = Router();
 const preRotaController = new PreRotaController();
 
 preRotaRouter.post(
   '/automatica',
-  autenticacao,
+  Autenticacao,
   celebrate({
     [Segments.BODY]: {
       path: Joi.string().required(),
@@ -20,6 +21,13 @@ preRotaRouter.post(
     },
   }),
   preRotaController.rotinaAutomatica,
+);
+
+preRotaRouter.post(
+  '/manual',
+  Autenticacao,
+  Upload.single('pre-rota'),
+  preRotaController.rotinaManual,
 );
 
 export default preRotaRouter;

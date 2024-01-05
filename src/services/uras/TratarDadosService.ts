@@ -1,4 +1,3 @@
-import { Contato } from '@models/ContatoModel';
 import CriarEmbarcadorService from '@services/embarcador/CriarEmbarcadorService';
 import CriarMensagemService from '@services/mensagens/CriarMensagemService';
 import AtualizarMinutaService from '@services/minutas/AtualizarMinutaServices';
@@ -12,6 +11,7 @@ import UraAtivoService from './UraAtivoService';
 import CriarContatoService from '@services/contatos/CriarContatoService';
 import UraReceptivoService from './UraReceptivoServices';
 import ConsultaContatoService from '@services/contatos/ConsultaContatoService';
+import { Contato } from '@Interfaces/Icontato';
 
 interface MensagemAtivo {
   nome: string;

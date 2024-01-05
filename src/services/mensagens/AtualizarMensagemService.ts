@@ -1,4 +1,5 @@
-import MensagemModel, { Mensagem } from '@models/MensagemModel';
+import { Mensagem } from '@Interfaces/IMensagem';
+import MensagemModel from '@models/MensagemModel';
 import AppError from '@utils/AppError';
 import { Types } from 'mongoose';
 
@@ -42,11 +43,13 @@ export default class AtualizarMensagemService {
   public async idMensagem(
     mensagemId: Types.ObjectId,
     idMensagem: string,
+    status: string,
   ): Promise<Mensagem> {
     const mensagemAtualizada = await MensagemModel.findByIdAndUpdate(
       mensagemId,
       {
         idMensagem: idMensagem,
+        status: status,
       },
       { new: true },
     );

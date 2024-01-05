@@ -1,5 +1,6 @@
-import { Embarcador } from '@models/EmbarcadorModel';
-import MinutaModel, { Minuta } from '@models/MinutaModel';
+import { Embarcador } from '@Interfaces/IEmbarcador';
+import { Minuta } from '@Interfaces/IMinuta';
+import MinutaModel from '@models/MinutaModel';
 import AppError from '@utils/AppError';
 import moment, { Moment } from 'moment';
 import { Types } from 'mongoose';

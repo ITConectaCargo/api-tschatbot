@@ -1,5 +1,5 @@
 import { Types } from 'mongoose';
-import { Contato } from './Icontato';
+import { Contato } from './IContato';
 
 export interface Mensagem extends Document {
   _id: Types.ObjectId;

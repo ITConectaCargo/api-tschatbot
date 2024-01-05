@@ -1,11 +1,11 @@
 import { Request, Response } from 'express';
 import fs from 'fs';
-import Excel from '@utils/Excel';
 import CriarArquivoPreRota from '@services/preRota/CriarArquivoPreRotaService';
 import CriarMinutaServices from '@services/minutas/CriarMinutaServices';
-import moment from 'moment';
 import ProcessaArquivoPrerotaService from '@services/preRota/ProcessaArquivoPrerotaService';
 import Email from '@utils/Email';
+import Excel from '@utils/Excel';
+import moment from 'moment';
 
 export default class PreRotaController {
   public async rotinaAutomatica(req: Request, res: Response): Promise<void> {
@@ -77,7 +77,20 @@ export default class PreRotaController {
     }
   }
 
-  // public async processaArquivoBot(req: Request, res: Response): Promise<void> {
+  public async rotinaManual(req: Request, res: Response): Promise<void> {
+    console.log('Rotina Manual');
+    if (!req.file) {
+      res.status(400).json({ error: 'Nenhum arquivo recebido.' });
+      return;
+    }
 
-  // }
+    res.status(200).json({
+      mensagem: `Envio das Mensagens Iniciado`,
+    });
+
+    const arquivo: Express.Multer.File = req.file;
+
+    const processaPreRota = new ProcessaArquivoPrerotaService();
+    await processaPreRota.executar(arquivo.path);
+  }
 }

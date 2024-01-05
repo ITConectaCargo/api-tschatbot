@@ -14,7 +14,7 @@ function VerificaToken(req: Request, res: Response, next: NextFunction) {
 
     next();
   } catch (err) {
-    res.status(400).json({ msg: 'Sessao Expirada' });
+    res.status(401).json({ msg: 'Sessao Expirada' });
   }
 }
 

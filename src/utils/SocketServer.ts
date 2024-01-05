@@ -1,7 +1,7 @@
 import { Server } from 'socket.io';
 import http from 'http';
-import { Protocolo } from '@models/ProtocoloModel';
-import { Mensagem } from '@models/MensagemModel';
+import { Mensagem } from '@Interfaces/IMensagem';
+import { Protocolo } from '@Interfaces/IProtocolo';
 
 let io: Server;
 

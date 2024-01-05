@@ -9,7 +9,7 @@ import {
   WhatsAppBusinessMessage,
   WhatsAppBusinessStatus,
 } from '@Interfaces/IWhatsapp';
-import { Contato } from '@Interfaces/Icontato';
+import { Contato } from '@Interfaces/IContato';
 import AtualizarMensagemService from '@services/mensagens/AtualizarMensagemService';
 
 interface MensagemReceptivo {

@@ -1,4 +1,5 @@
-import MensagemModel, { Mensagem } from '@models/MensagemModel';
+import { Mensagem } from '@Interfaces/IMensagem';
+import MensagemModel from '@models/MensagemModel';
 import moment from 'moment';
 import { Types } from 'mongoose';
 

@@ -1,5 +1,6 @@
-import EmbarcadorModel, { Embarcador } from '@models/EmbarcadorModel';
+import EmbarcadorModel from '@models/EmbarcadorModel';
 import ConsultaEmbarcadorService from './ConsultaEmbarcadorService';
+import { Embarcador } from '@Interfaces/IEmbarcador';
 
 export default class CriarEmbarcadorService {
   public async executar(cpfCnpj: string, nome: string): Promise<Embarcador> {

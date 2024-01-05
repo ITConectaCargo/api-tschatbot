@@ -1,5 +1,6 @@
-import ContatoModel, { Contato } from '@models/ContatoModel';
+import ContatoModel from '@models/ContatoModel';
 import ConsultaContatoService from './ConsultaContatoService';
+import { Contato } from '@Interfaces/IContato';
 
 interface Endereco {
   rua: string;

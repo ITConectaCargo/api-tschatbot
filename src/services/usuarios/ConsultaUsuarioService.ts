@@ -1,4 +1,5 @@
-import UsuarioModel, { Usuario } from '@models/UsuarioModel';
+import { Usuario } from '@Interfaces/IUsuario';
+import UsuarioModel from '@models/UsuarioModel';
 import AppError from '@utils/AppError';
 import { Types } from 'mongoose';
 

@@ -1,7 +1,8 @@
-import MinutaModel, { Minuta } from '@models/MinutaModel';
+import MinutaModel from '@models/MinutaModel';
 import ConsultaMinutaService from './ConsultaMinutaService';
 import Esl from '@utils/Esl';
 import Checklist from '@utils/Checklist';
+import { Minuta } from '@Interfaces/IMinuta';
 
 export default class CriarMinutaServices {
   public async executar(

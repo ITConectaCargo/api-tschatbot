@@ -1,7 +1,7 @@
-import { Embarcador } from '@models/EmbarcadorModel';
-import { Mensagem } from '@models/MensagemModel';
-import { Minuta } from '@models/MinutaModel';
-import { Protocolo } from '@models/ProtocoloModel';
+import { Embarcador } from '@Interfaces/IEmbarcador';
+import { Mensagem } from '@Interfaces/IMensagem';
+import { Minuta } from '@Interfaces/IMinuta';
+import { Protocolo } from '@Interfaces/IProtocolo';
 import AtualizarMensagemService from '@services/mensagens/AtualizarMensagemService';
 import axios from 'axios';
 import moment from 'moment';
@@ -29,8 +29,7 @@ export default class EnviaMensagensMetaService {
       const dados = resposta.data;
       const messageId = dados.messages[0].id;
       const atualizaStatus = new AtualizarMensagemService();
-      await atualizaStatus.idMensagem(this.mensagem._id, messageId);
-      await atualizaStatus.status(this.mensagem._id, 'sent');
+      await atualizaStatus.idMensagem(this.mensagem._id, messageId, 'sent');
 
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
@@ -78,8 +77,7 @@ export default class EnviaMensagensMetaService {
       const dados = resposta.data;
       const messageId = dados.messages[0].id;
       const atualizaStatus = new AtualizarMensagemService();
-      await atualizaStatus.idMensagem(this.mensagem._id, messageId);
-      await atualizaStatus.status(this.mensagem._id, 'sent');
+      await atualizaStatus.idMensagem(this.mensagem._id, messageId, 'sent');
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (erro: any) {
       const dados = erro.response.data.error.message;
@@ -132,8 +130,7 @@ export default class EnviaMensagensMetaService {
       const dados = resposta.data;
       const messageId = dados.messages[0].id;
       const atualizaStatus = new AtualizarMensagemService();
-      await atualizaStatus.idMensagem(this.mensagem._id, messageId);
-      await atualizaStatus.status(this.mensagem._id, 'sent');
+      await atualizaStatus.idMensagem(this.mensagem._id, messageId, 'sent');
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (erro: any) {
       const dados = erro.response.data.error.error_data.details;
@@ -202,8 +199,7 @@ export default class EnviaMensagensMetaService {
       const dados = resposta.data;
       const messageId = dados.messages[0].id;
       const atualizaStatus = new AtualizarMensagemService();
-      await atualizaStatus.idMensagem(this.mensagem._id, messageId);
-      await atualizaStatus.status(this.mensagem._id, 'sent');
+      await atualizaStatus.idMensagem(this.mensagem._id, messageId, 'sent');
       console.log(`Mensagem Template enviada para: ${protocolo.de.nome}`);
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (erro: any) {
@@ -229,8 +225,7 @@ export default class EnviaMensagensMetaService {
       const dados = resposta.data;
       const messageId = dados.messages[0].id;
       const atualizaStatus = new AtualizarMensagemService();
-      await atualizaStatus.idMensagem(this.mensagem._id, messageId);
-      await atualizaStatus.status(this.mensagem._id, 'sent');
+      await atualizaStatus.idMensagem(this.mensagem._id, messageId, 'sent');
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
       const dados = error.response.data.error.message;
@@ -252,8 +247,7 @@ export default class EnviaMensagensMetaService {
       const dados = resposta.data;
       const messageId = dados.messages[0].id;
       const atualizaStatus = new AtualizarMensagemService();
-      await atualizaStatus.idMensagem(this.mensagem._id, messageId);
-      await atualizaStatus.status(this.mensagem._id, 'sent');
+      await atualizaStatus.idMensagem(this.mensagem._id, messageId, 'sent');
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
       const dados = error.response.data.error.message;
